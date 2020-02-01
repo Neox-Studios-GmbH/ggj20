@@ -8,7 +8,7 @@ using UnityEngine.EventSystems;
 namespace GGJ20
 {
     [RequireComponent(typeof(Rigidbody2D), typeof(SpriteRenderer), typeof(BoxCollider2D))]
-    public abstract class Grabable : MonoBehaviour, IPointerClickHandler
+    public abstract class Grabable : FactoryItem, IPointerEnterHandler, IPointerExitHandler
     {
         // --- Enums ------------------------------------------------------------------------------------------------------
 
@@ -22,6 +22,7 @@ namespace GGJ20
         protected Rigidbody2D _rb;
         protected BoxCollider2D _collider;
         protected Vector3 _startPos;
+        private bool _isHovering;
         public bool IsGrabbed { get; protected set; }
         // --- Properties -------------------------------------------------------------------------------------------------
 
@@ -33,8 +34,17 @@ namespace GGJ20
             _rb.gravityScale = _fallSpeed;
             _startPos = transform.position;
         }
+        private void Update()
+        {
+            if(!_isHovering)
+                return;
+            if(Input.GetKeyDown(KeyCode.Mouse0))
+                Grab(Players.PlayerOne);
+            if(Input.GetKeyDown(KeyCode.Mouse1))
+                Grab(Players.PlayerTwo);
+        }
         // --- Public/Internal Methods ------------------------------------------------------------------------------------
-        public void Grab()
+        public void Grab(Players player)
         {
             if(_isGrabbed)
             {
@@ -42,7 +52,7 @@ namespace GGJ20
                 return;
             }
             _isGrabbed = true;
-            HandleGrab();
+            HandleGrab(player);
         }
         public void Spawn(float fallspeed, Vector2 spawnPos)
         {
@@ -51,7 +61,7 @@ namespace GGJ20
             _isGrabbed = false;
         }
         // --- Protected/Private Methods ----------------------------------------------------------------------------------   
-        protected abstract void HandleGrab();
+        protected abstract void HandleGrab(Players player);
         private void OnTriggerEnter2D(Collider2D collision)
         {
             if(collision.name == "Bounds")
@@ -63,13 +73,19 @@ namespace GGJ20
         {
             Debug.Log($"Returning to Spawn");
             _rb.velocity = Vector2.zero;
-            transform.position = _startPos;
+            MegaFactory.Instance.ReturnFactoryItem(this);
         }
 
-        public void OnPointerClick(PointerEventData eventData)
+        public void OnPointerExit(PointerEventData eventData)
         {
-            Grab();
+            _isHovering = false;
         }
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            _isHovering = true;
+        }
+
         // --------------------------------------------------------------------------------------------
     }
 

@@ -15,7 +15,7 @@ namespace GGJ20
         // --- Fields -----------------------------------------------------------------------------------------------------
         private Stack<BuildingBlock> _blockStack;
         // --- Properties -------------------------------------------------------------------------------------------------
-
+        public Stack<BuildingBlock> BlockStack => _blockStack;
         // --- Unity Functions --------------------------------------------------------------------------------------------
         private void Awake()
         {
@@ -25,9 +25,8 @@ namespace GGJ20
         // --- Public/Internal Methods ------------------------------------------------------------------------------------
         public void AddBlock(BuildingBlock block)
         {
-            Debug.Log($"Adding {block.Type} with height {block.BlockUpperBounds} to stack");
+            Debug.Log($"Adding {block.BType} with height {block.BlockUpperBounds} to stack");
             PlaceBlock(block);
-            Debug.Log($"{_blockStack.Count}");
         }
         public void DestroyBlock()
         {
