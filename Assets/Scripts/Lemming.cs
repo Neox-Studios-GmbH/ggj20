@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace GGJ20
 {
-    public class Lemming : MonoBehaviour
+    public class Lemming : FactoryItem
     {
         // --- Enums ------------------------------------------------------------------------------------------------------
 
@@ -15,7 +15,9 @@ namespace GGJ20
         // --- Fields -----------------------------------------------------------------------------------------------------
         [Header("Suicide")]
         [SerializeField] private float _suicideJumpStrengh = 1f;
-        [SerializeField] private float _suicideRate = 0.05f;
+        [SerializeField, Range(1,5)] private int _suicidalTendency = 1;
+        private FloatRange _suicideRange = new FloatRange(0.005f, 0.02f);
+        private float _suicideRate;
 
         [SerializeField] private float _runSpeed = 2f;
         [SerializeField] private CapsuleCollider2D _collider;
@@ -31,12 +33,15 @@ namespace GGJ20
         private bool _isSuiciding = false;
         private float _cheerCooldown;
         // --- Properties -------------------------------------------------------------------------------------------------
+        public int SuicidalTendency { get => _suicidalTendency; set { _suicidalTendency = Mathf.Clamp(value, 1, 5); } }
 
         // --- Unity Functions --------------------------------------------------------------------------------------------
         private void Start()
         {
             _cheerCooldown = _randomCheerInterval;
             _runningDirection = UnityEngine.Random.Range(0, 2)*2 - 1;
+            _suicideRate = UnityEngine.Random.Range(_suicideRange.Min, _suicideRange.Max) * _suicidalTendency;
+
         }
         private void Update()
         {
@@ -85,7 +90,7 @@ namespace GGJ20
                 (Vector2)transform.position - _collider.size/2,
                 ForceMode2D.Impulse);
 
-            //TODO: Scream Sound
+            SoundManager.PlayRandomAhh(transform.position);
         }
 
         private void Flip()
@@ -112,7 +117,7 @@ namespace GGJ20
                     return;
                 }
 
-                //TODO: Cheer Sound
+                SoundManager.PlayRandomCheer(transform.position);
             }
         }
 
