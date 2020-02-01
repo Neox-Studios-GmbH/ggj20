@@ -18,9 +18,9 @@ namespace GGJ20
 
         public enum BuildingBlockHeight
         {
-            Small = 1,
-            Medium = 2,
-            Large = 3
+            Small = 0,
+            Medium = 1,
+            Large = 2
         }
         // --- Nested Classes ---------------------------------------------------------------------------------------------
 
@@ -31,7 +31,7 @@ namespace GGJ20
         // --- Properties -------------------------------------------------------------------------------------------------
         public float BlockUpperBounds => transform.position.y + _collider.bounds.size.y;
         public float BlockHeight => _collider.size.y;
-        public BlockType Type => _blockType;
+        public BlockType BType => _blockType;
         // --- Unity Functions --------------------------------------------------------------------------------------------
         protected override void Awake()
         {
@@ -42,12 +42,12 @@ namespace GGJ20
 
         // --- Protected/Private Methods ----------------------------------------------------------------------------------
 
-        protected override void HandleGrab()
+        protected override void HandleGrab(Players player)
         {
             _rb.velocity = Vector2.zero;
             _rb.isKinematic = true;
             Debug.Log($"Grabbing {this._blockHeight}");
-            GameManager.StackPlayerOne.AddBlock(this);
+            GameManager.PlayerStackForPlayer(player).AddBlock(this);
 
         }
         // --------------------------------------------------------------------------------------------

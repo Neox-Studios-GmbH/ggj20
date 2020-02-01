@@ -11,11 +11,18 @@ namespace GGJ20
         // --- Enums ------------------------------------------------------------------------------------------------------
         public enum FactoryType
         {
-            Lemming = 0
+            Lemming = 0,
+            SmallBlock = 1,
+            MediumBlock = 2,
+            LargeBlock = 3,
+            LavaChunk = 4,
+            Boulder = 5
         }
 
         // --- Nested Classes ---------------------------------------------------------------------------------------------
-        [Serializable] public struct FactoryPreset {
+        [Serializable]
+        public struct FactoryPreset
+        {
             public FactoryItem Preset;
             public int Amount;
         }
@@ -45,7 +52,7 @@ namespace GGJ20
         }
 
         // --- Public/Internal Methods ------------------------------------------------------------------------------------
-        public FactoryItem GetFactoryItem(FactoryType type) 
+        public FactoryItem GetFactoryItem(FactoryType type)
         {
             if(!_factoryItems.ContainsKey(type))
             {
@@ -61,6 +68,10 @@ namespace GGJ20
 
             item.gameObject.SetActive(true);
             return item;
+        }
+        public T GetFactoryItem<T>(FactoryType type) where T : FactoryItem
+        {
+            return GetFactoryItem(type) as T;
         }
 
         public void ReturnFactoryItem(FactoryItem item)
