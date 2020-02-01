@@ -92,7 +92,7 @@ namespace GGJ20
             _factoryItems[preset.Preset.Type].Add(fi);
             fi.gameObject.SetActive(false);
             fi.gameObject.transform.position = Vector3.zero;
-
+            fi.transform.SetParent(transform);
             return fi;
         }
         // --------------------------------------------------------------------------------------------
