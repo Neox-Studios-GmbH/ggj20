@@ -6,48 +6,48 @@ using System.Linq;
 
 namespace GGJ20
 {
-    public class GameManager : MonoBehaviour
+    public class PlayerStack : MonoBehaviour
     {
-        public static GameManager Instance { get; private set; }
-
         // --- Enums ------------------------------------------------------------------------------------------------------
 
         // --- Nested Classes ---------------------------------------------------------------------------------------------
 
         // --- Fields -----------------------------------------------------------------------------------------------------
-        [SerializeField] private PlayerStack _stackPlayerOne;
-        [SerializeField] private Transform[] _blockSpawn;
-        [SerializeField] private float _minSpawnTime, _maxSpawnTime;
-        [SerializeField] private BuildingBlock _blockPrefab;
+        private Stack<BuildingBlock> _blockStack;
         // --- Properties -------------------------------------------------------------------------------------------------
-        public static PlayerStack StackPlayerOne => Instance._stackPlayerOne;
+
         // --- Unity Functions --------------------------------------------------------------------------------------------
         private void Awake()
         {
-            if(Instance != null && Instance != this)
-            {
-                Destroy(this);
-            }
-            Instance = this;
-            DontDestroyOnLoad(Instance);
+            _blockStack = new Stack<BuildingBlock>();
         }
-        private void Update()
-        {
 
-        }
         // --- Public/Internal Methods ------------------------------------------------------------------------------------
-
-        // --- Protected/Private Methods ----------------------------------------------------------------------------------
-        private void SpawnBlock()
+        public void AddBlock(BuildingBlock block)
         {
-            BuildingBlock block = Instantiate(_blockPrefab, _blockSpawn[0]);
+            Debug.Log($"Adding {block.Type} with height {block.BlockUpperBounds} to stack");
+            PlaceBlock(block);
+            Debug.Log($"{_blockStack.Count}");
+        }
+        public void DestroyBlock()
+        {
 
         }
-
-        private void SelectRandomBlock()
+        // --- Protected/Private Methods ----------------------------------------------------------------------------------
+        private void PlaceBlock(BuildingBlock block)
         {
-            System.Random r = new System.Random();
-            BuildingBlock.BlockType blockType = (BuildingBlock.BlockType)r.Next(0, 2);
+            if(_blockStack.Count == 0)
+            {
+                block.transform.position = transform.position;
+            }
+            else
+            {
+                BuildingBlock lastblock = _blockStack.Peek();
+                Vector3 newPos = lastblock.transform.position;
+                newPos.y = lastblock.BlockUpperBounds;
+                block.transform.position = newPos;
+            }
+            _blockStack.Push(block);
         }
         // --------------------------------------------------------------------------------------------
     }

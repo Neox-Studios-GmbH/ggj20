@@ -6,48 +6,49 @@ using System.Linq;
 
 namespace GGJ20
 {
-    public class GameManager : MonoBehaviour
+    public class BuildingBlock : Grabable
     {
-        public static GameManager Instance { get; private set; }
-
         // --- Enums ------------------------------------------------------------------------------------------------------
+        public enum BlockType
+        {
+            Wood = 0,
+            Rock = 1,
+            Unobtainium = 2
+        }
 
+        public enum BuildingBlockHeight
+        {
+            Small = 1,
+            Medium = 2,
+            Large = 3
+        }
         // --- Nested Classes ---------------------------------------------------------------------------------------------
 
         // --- Fields -----------------------------------------------------------------------------------------------------
-        [SerializeField] private PlayerStack _stackPlayerOne;
-        [SerializeField] private Transform[] _blockSpawn;
-        [SerializeField] private float _minSpawnTime, _maxSpawnTime;
-        [SerializeField] private BuildingBlock _blockPrefab;
+        [SerializeField] private BuildingBlockHeight _blockHeight;
+        [SerializeField] private BlockType _blockType;
+        [SerializeField] private SpriteRenderer _stairSprite;
         // --- Properties -------------------------------------------------------------------------------------------------
-        public static PlayerStack StackPlayerOne => Instance._stackPlayerOne;
+        public float BlockUpperBounds => transform.position.y + _collider.bounds.size.y;
+        public float BlockHeight => _collider.size.y;
+        public BlockType Type => _blockType;
         // --- Unity Functions --------------------------------------------------------------------------------------------
-        private void Awake()
+        protected override void Awake()
         {
-            if(Instance != null && Instance != this)
-            {
-                Destroy(this);
-            }
-            Instance = this;
-            DontDestroyOnLoad(Instance);
+            base.Awake();
         }
-        private void Update()
-        {
 
-        }
         // --- Public/Internal Methods ------------------------------------------------------------------------------------
 
         // --- Protected/Private Methods ----------------------------------------------------------------------------------
-        private void SpawnBlock()
-        {
-            BuildingBlock block = Instantiate(_blockPrefab, _blockSpawn[0]);
 
-        }
-
-        private void SelectRandomBlock()
+        protected override void HandleGrab()
         {
-            System.Random r = new System.Random();
-            BuildingBlock.BlockType blockType = (BuildingBlock.BlockType)r.Next(0, 2);
+            _rb.velocity = Vector2.zero;
+            _rb.isKinematic = true;
+            Debug.Log($"Grabbing {this._blockHeight}");
+            GameManager.StackPlayerOne.AddBlock(this);
+
         }
         // --------------------------------------------------------------------------------------------
     }
