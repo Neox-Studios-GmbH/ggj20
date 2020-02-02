@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TechnoLizard_Movement
   m_EditorClassIdentifier: 
   _clip: {fileID: 8300000, guid: 4232f38d29bf6d24da423540329d8842, type: 3}
-  _volume: 0.6
+  _volume: 0.2
   _pitch:
     _min: 0.6
-    _max: 0.9
+    _max: 1

@@ -17,24 +17,21 @@ namespace GGJ20
 
         // --- Properties -------------------------------------------------------------------------------------------------
 
-        // --- Unity Functions --------------------------------------------------------------------------------------------
-        protected override void Awake()
+        // --- Unity Functions --------------------------------------------------------------------------------------------        
+        private void OnEnable()
         {
-            base.Awake();
+            transform.rotation = Randomizer.ZRotation();
         }
 
         // --- Public/Internal Methods ------------------------------------------------------------------------------------
-        protected override void HandleGrab(Players player)
+        public override void OnGrab(GrapplingHook hook)
         {
-            //throw new NotImplementedException();
-            Debug.Log($"{Logger.GetPre(this)} You suck {player}");
+            SoundManager.Play(SFX.Boulder_Crumble, transform.position);
+            // TODO: player animation or spawn particles
+
+            Return();
         }
 
-        protected override void HandleGrab()
-        {
-
-        }
-        
         // --- Protected/Private Methods ----------------------------------------------------------------------------------
 
         // --------------------------------------------------------------------------------------------

@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 9050686935107330124}
   - component: {fileID: 9050686935107330125}
   - component: {fileID: -536971956976719751}
+  - component: {fileID: 1845633795857816553}
   m_Layer: 9
   m_Name: Boulder
   m_TagString: Untagged
@@ -73,7 +74,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 11bed9fc1661dcb479b1a880e3fbad28, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -145,7 +146,35 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _type: 5
-  _isGrabbed: 0
   _fallSpeed:
     _min: 0.125
     _max: 0.65
+--- !u!114 &1845633795857816553
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9050686935107330115}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ShadowGroup: 0
+  m_HasRenderer: 1
+  m_UseRendererSilhouette: 1
+  m_CastsShadows: 1
+  m_SelfShadows: 0
+  m_ApplyToSortingLayers: d551093d
+  m_ShapePath:
+  - {x: -0.7659551, y: -0.48685932, z: 0}
+  - {x: -0.1600689, y: -0.8203523, z: 0.00000023841858}
+  - {x: 0.6459037, y: -0.67093825, z: 0}
+  - {x: 0.8643713, y: -0.3561529, z: 0.00000023841858}
+  - {x: 0.85636806, y: 0.5082185, z: 0.00000023841858}
+  - {x: -0.05839902, y: 0.8069966, z: 0}
+  - {x: -0.70993143, y: 0.3828143, z: 0}
+  m_ShapePathHash: 1605146948
+  m_Mesh: {fileID: 0}
+  m_InstanceId: 59580

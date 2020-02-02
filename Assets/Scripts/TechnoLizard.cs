@@ -21,10 +21,10 @@ namespace GGJ20
 
         // --- Fields -----------------------------------------------------------------------------------------------------
         [SerializeField] private PlayerStack _playerStack = null;
-        [SerializeField] private GrapplingHook _hook;
-        [SerializeField] private float _stackOffset = 5f;
+        [SerializeField] private GrapplingHook _hook;        
         [Space]
         [SerializeField] private Animator _bodyAnimator = null;
+        [SerializeField, Min(0f)] private float _movementSpeed = 2f;
         [SerializeField, Min(0f)] private float _rotationSpeed = 90f;
         [SerializeField, Range(0f, 180f)] private float _maxAngle = 100f;
         [Space]
@@ -33,6 +33,7 @@ namespace GGJ20
 
         private float _angle = 0f;
         private float _targetAngle = 0f;
+        private float _stackOffset = 5f;
 
         private float _chargeStartTime;
         private Delay _grapplingDelay;
@@ -41,12 +42,15 @@ namespace GGJ20
 
         // --- Properties -------------------------------------------------------------------------------------------------
         public State CurrentState { get; private set; } = State.Rotating;
+        public PlayerStack Stack => _playerStack;        
 
         // --- Unity Functions --------------------------------------------------------------------------------------------
-        private void Awake()
+        private void Start()
         {
-            _grapplingDelay = new Delay(_grappleCancelCooldown);            
-        }
+            _grapplingDelay = new Delay(_grappleCancelCooldown);
+
+            _stackOffset = this.transform.position.y - Stack.NextBlockPosition.y;
+    }
 
         private void Update()
         {
@@ -55,6 +59,7 @@ namespace GGJ20
                 case State.Rotating:
                 case State.Charging:
                     UpdateRotation();
+                    UpdateHeight();
                     break;
 
                 case State.Firing:
@@ -89,17 +94,7 @@ namespace GGJ20
                 CurrentState = State.Firing;
 
                 float chargeT = Mathf.InverseLerp(0f, _maxGrapplingChargeDuration, chargeDuration);
-                _hook.Fire(chargeT, () =>
-                {
-                    Debug.Log("Gotcha!");
-                    CurrentState = State.Rotating;
-                    if(_hook.GrabbedBlock != null)
-                    {
-                        _playerStack.ReceiveBlock(_hook.GrabbedBlock);
-                        _hook.GrabbedBlock = null;
-                    }
-                    //_playerStack.ReceiveBlock(_hook.cu)
-                });
+                _hook.Fire(chargeT, () => CurrentState = State.Rotating);
             }
         }
 
@@ -113,6 +108,19 @@ namespace GGJ20
 
             _angle = Mathf.MoveTowards(_angle, _targetAngle, _rotationSpeed * Time.deltaTime);
             transform.up = Quaternion.Euler(0f, 0f, _angle) * Vector3.up;
+        }
+
+        private void UpdateHeight()
+        {
+            Vector3 pos = transform.position;
+            float targetY = Stack.NextBlockPosition.y + _stackOffset;
+
+            if(pos.y != targetY)
+            {
+                _bodyAnimator.SetBool(ANIM_BODY_IS_WALKING, true);
+                pos.y = Mathf.MoveTowards(pos.y, targetY, _movementSpeed * Time.deltaTime);
+                transform.position = pos;
+            }
         }
 
         // --------------------------------------------------------------------------------------------

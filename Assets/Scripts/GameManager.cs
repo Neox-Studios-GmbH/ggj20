@@ -27,10 +27,11 @@ namespace GGJ20
         [SerializeField] private PlayerStack _stackPlayerOne;
         [SerializeField] private PlayerStack _stackPlayerTwo;
 
-        private const int MAX_SCORE = 450;
         private PlayerScores _score;
-        public Action<PlayerStack> OnStackChanged;
+        public Action<PlayerStack> onStackChanged;
+
         // --- Properties -------------------------------------------------------------------------------------------------
+        public bool GameOver { get; private set; }
 
         // --- Unity Functions --------------------------------------------------------------------------------------------
         private void Awake()
@@ -39,63 +40,73 @@ namespace GGJ20
             {
                 Destroy(this);
             }
+
             Instance = this;
             DontDestroyOnLoad(Instance);
         }
-        private void Update()
-        {
-            //_intervall -= Time.deltaTime;
-            //if(_intervall <= 0)
-            //{
-            //    SpawnBlock();
-            //    SpawnLava();
-            //    _intervall = 3f;
-            //}
-        }
+
         // --- Public/Internal Methods ------------------------------------------------------------------------------------
-        public static PlayerStack PlayerStackForPlayer(Players player)
+        public static PlayerStack GetStack(Players player)
         {
             return player == Players.PlayerOne ? Instance._stackPlayerOne : Instance._stackPlayerTwo;
+        }
+
+        public static PlayerStack GetEnemyStack(PlayerStack stack)
+        {
+            return stack.Player == Players.PlayerOne ? Instance._stackPlayerTwo : Instance._stackPlayerOne;
+        }
+
+        // --------------------------------------------------------------------------------------------
+        public static LavaChunk GetLavaChunk()
+        {
+            return Instance._GetLavaChunk();
         }
 
         public static Grabable GetRandomBlockOrBoulder()
         {
             return Instance._GetRandomBlockOrBoulder();
         }
-        public static LavaChunk GetLavaChunk()
+
+        //public static void AddPlayerScore(Players player, int score)
+        //{
+        //    Instance._AddPlayerScore(player, score);
+        //}
+
+        // --------------------------------------------------------------------------------------------
+        public static void OnPlayerWon(Players player)
         {
-            return Instance._GetChunk();
+            Instance._OnPlayerWon(player);            
         }
 
-        public static void AddPlayerScore(Players player, int score)
+        public static void OnDraw()
         {
-            Instance._AddPlayerScore(player, score);
+            Instance._OnPlayerWon(Players.PlayerOne);
+            Instance._OnPlayerWon(Players.PlayerTwo);
         }
 
         // --- Protected/Private Methods ----------------------------------------------------------------------------------
-        private void _AddPlayerScore(Players player, int score)
-        {
-            switch(player)
-            {
-                case Players.PlayerOne:
-                    _score.playerOne += score;
+        //private void _AddPlayerScore(Players player, int score)
+        //{
+        //    switch(player)
+        //    {
+        //        case Players.PlayerOne:
+        //            _score.playerOne += score;
+        //            break;
 
-                    break;
-                case Players.PlayerTwo:
-                    _score.playerTwo += score;
-                    break;
-            }
-            if(IsGameOver())
-            {
-                Players _player = _score.playerOne > _score.playerTwo ? Players.PlayerOne : Players.PlayerTwo;
-                Debug.Log($"Game over Bro {_player} won!");
-            }
-            Debug.Log($"{Logger.GetPre(this)}  ScorePlayerOne {_score.playerOne} ScorePlayerTwo {_score.playerTwo}");
-        }
-        private LavaChunk _GetChunk()
+        //        case Players.PlayerTwo:
+        //            _score.playerTwo += score;
+        //            break;
+        //    }
+
+        //    Debug.Log($"{Logger.GetPre(this)}  ScorePlayerOne {_score.playerOne} ScorePlayerTwo {_score.playerTwo}");
+        //}
+
+        // --------------------------------------------------------------------------------------------
+        private LavaChunk _GetLavaChunk()
         {
             return MegaFactory.Instance.GetFactoryItem<LavaChunk>(MegaFactory.FactoryType.LavaChunk);
         }
+
         private Grabable _GetRandomBlockOrBoulder()
         {
             int randomStuff = UnityEngine.Random.Range(0, 6);
@@ -117,10 +128,27 @@ namespace GGJ20
             }
         }
 
-        public bool IsGameOver()
+        // --------------------------------------------------------------------------------------------
+        private void _OnPlayerWon(Players player)
         {
-            return _score.playerOne >= MAX_SCORE || _score.playerTwo >= MAX_SCORE;
+            if(GameOver)
+                return;
+
+            Debug.Log($"{Logger.GetPre(this)} '{player}' has won!");
+
+            PlayerStack loserStack = player == Players.PlayerOne
+                ? _stackPlayerTwo : _stackPlayerOne;
+
+            Rigidbody2D stackRb = loserStack.gameObject.AddComponent<Rigidbody2D>();
+            stackRb.AddTorque(10f, ForceMode2D.Impulse);
+
+            Rigidbody2D lizardRb = loserStack.Lizard.gameObject.AddComponent<Rigidbody2D>();
+            lizardRb.AddTorque(10f, ForceMode2D.Impulse);
+
+            GameOver = true;
         }
+
+
         // --------------------------------------------------------------------------------------------
     }
 

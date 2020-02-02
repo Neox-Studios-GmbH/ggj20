@@ -15,16 +15,15 @@ namespace GGJ20
         // --- Nested Classes ---------------------------------------------------------------------------------------------
 
         // --- Fields -----------------------------------------------------------------------------------------------------
-        [Header("Testing")]
-        [SerializeField] protected bool _isGrabbed;
-        //[SerializeField, Range(0.1f, 1.5f)] private float _fallSpeed;
+        [Header("Grabable")]
         [SerializeField] private FloatRange _fallSpeed = new FloatRange(0.125f, .65f);
-        [Space]
+
         protected Rigidbody2D _rb;
         protected BoxCollider2D _collider;
         protected Vector3 _startPos;
-        private bool _isHovering;
-        public bool IsGrabbed { get; protected set; }
+
+        private const float SPLASH_CHANCE = .33f;
+
         // --- Properties -------------------------------------------------------------------------------------------------
 
         // --- Unity Functions --------------------------------------------------------------------------------------------
@@ -32,72 +31,61 @@ namespace GGJ20
         {
             _collider = GetComponent<BoxCollider2D>();
             _rb = GetComponent<Rigidbody2D>();
+
             _rb.gravityScale = _fallSpeed.GetRandom();
             _startPos = transform.position;
         }
-        private void Update()
-        {
 
-
-        }
         // --- Public/Internal Methods ------------------------------------------------------------------------------------
-        //public void Grab(Transform other)
-        //{
-        //    if(_isGrabbed)
-        //    {
-        //        Debug.Log($"Is Already grabbed!");
-        //        return;
-        //    }
-        //    _isGrabbed = true;
-        //    SetDefaultValues();
-        //    _rb.isKinematic = true;
-        //    transform.position = other.position;
-        //    transform.SetParent(other);
-        //    HandleGrab();
-        //}
-        public void Grab(GrapplingHook hook)
+        public virtual void OnGrab(GrapplingHook hook)
         {
-            HandleGrab(hook);
+            _rb.bodyType = RigidbodyType2D.Kinematic;
+            _rb.velocity = Vector2.zero;
+            _rb.rotation = 0f;
         }
-        // --- Protected/Private Methods ----------------------------------------------------------------------------------   
-        private void Grab(Players player)
-        {
-            if(_isGrabbed)
-            {
-                Debug.Log($"Is Already grabbed!");
-                return;
-            }
-            _isGrabbed = true;
-            HandleGrab(player);
-        }
-        protected abstract void HandleGrab(Players player);
-        protected virtual void HandleGrab(GrapplingHook hook)
-        {
 
-        }
-        protected virtual void HandleGrab()
-        {
-            Debug.Log($"Do grab stuff");
-        }
+        // --- Protected/Private Methods ----------------------------------------------------------------------------------   
         private void OnTriggerEnter2D(Collider2D collision)
         {
+            if(!Active)
+                return;
+
             if(collision.name == "Bounds")
             {
+                // NOTE: Don't clear blocks that were built!
+                if(this is BuildingBlock bb && bb.Stack != null)
+                {
+                    //bb.gameObject.SetActive(false);
+                    //bb.DisableSprites();
+                    return;
+                }
+
+                if(Randomizer.Chance(SPLASH_CHANCE))
+                {
+                    ParticleSystem ps = Instantiate(Resources.Load<ParticleSystem>("Particles/LavaBlob"));
+                    ps.transform.position = transform.position;
+
+                    SFX sfx = Randomizer.Pick(SFX.Lava_Splash, SFX.Lava_Plop);
+                    SoundManager.Play(sfx, transform.position + Vector3.up);
+                }
+
                 Return();
             }
         }
+
         protected void SetDefaultValues()
-        {    //Debug.Log($"Returning to Spawn");
-            _rb.velocity = Vector2.zero;
-            _rb.rotation = 0;
-        }
-        private void Return()
         {
-            SetDefaultValues();
-            _isGrabbed = false;
-            MegaFactory.Instance.ReturnFactoryItem(this);
+            //Debug.Log($"Returning to Spawn");
+            _rb.bodyType = RigidbodyType2D.Dynamic;
+            _rb.velocity = Vector2.zero;
+            _rb.rotation = 0f;
         }
 
+        protected void Return()
+        {
+            SetDefaultValues();
+            MegaFactory.Instance.ReturnFactoryItem(this);
+        }
 
         // --------------------------------------------------------------------------------------------
     }

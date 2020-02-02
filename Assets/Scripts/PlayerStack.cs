@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
@@ -14,106 +13,170 @@ namespace GGJ20
 
         // --- Fields -----------------------------------------------------------------------------------------------------
         [SerializeField] private Players _player;
-        [SerializeField] private TechnoLizard _lizardBoi;
+        [SerializeField] private TechnoLizard _lizard;
         [SerializeField] private FloatRange _receiveDuration = new FloatRange(.5f, 1);
-        private Stack<BuildingBlock> _blockStack;
-        private float _lizardBoiDistance;
-        private Delay _delay;
+
+        [Header("Lemmings")]
+        [SerializeField] private int _lemmingTargetAmount;
+        [SerializeField] private int _lemmingSpawnAmount;
+        [SerializeField] private FloatRange _lemmingSpawnDelay;
+
+        private List<Lemming> _lemmings = new List<Lemming>();
 
         // --- Properties -------------------------------------------------------------------------------------------------
-        public Stack<BuildingBlock> BlockStack => _blockStack;
-        public int _CombinedStackScore => CombinedStackScore();
-        public float CombinedStackHeight => CombinedHeight();
+        public Stack<BuildingBlock> Blocks { get; private set; }
+
+        public Players Player => _player;
+        public TechnoLizard Lizard => _lizard;
+        public float Height => CalculateHeight();
+        public int Score => CalculateScore();
+
+        public Vector3 NextBlockPosition
+        {
+            get
+            {
+                if(Blocks.Count == 0)
+                    return transform.position;
+
+                BuildingBlock topBlock = Blocks.Peek();
+                return topBlock.transform.position + Vector3.up * topBlock.BlockHeight;
+            }
+        }
+
+        public float TopBlockWidth
+        {
+            get
+            {
+                if(Blocks.Count == 0)
+                    return 1f;
+
+                BuildingBlock topBlock = Blocks.Peek();
+                return topBlock.Bounds.extents.x;
+            }
+        }
+
+
+
         // --- Unity Functions --------------------------------------------------------------------------------------------
         private void Awake()
         {
-            _delay = new Delay(0f);
-            _blockStack = new Stack<BuildingBlock>();
-            //_lizardBoiDistance = transform.position - _lizardBoi.transform.position;
-            if(_lizardBoi == null)
-                return;
-            _lizardBoiDistance = Vector2.Distance(transform.position, _lizardBoi.transform.position);
+            Blocks = new Stack<BuildingBlock>();
+        }
+
+        private void Start()
+        {
+            SpawnLemmings();
+        }
+
+        private void SpawnLemmings()
+        {
+            for(int i = 0; i < _lemmings.Count; i++)
+            {
+                if(_lemmings[i] == null || !_lemmings[i].Active)
+                    _lemmings.RemoveAt(i--);
+            }
+
+            int maxSpawnAmount = Mathf.Min(_lemmingSpawnAmount, _lemmingTargetAmount - _lemmings.Count);
+            for(int i = 0; i < maxSpawnAmount; i++)
+            {
+                Lemming l = MegaFactory.Instance.GetFactoryItem<Lemming>(MegaFactory.FactoryType.Lemming);
+                float xExtents = TopBlockWidth - .25f;
+                l.transform.position = NextBlockPosition + Vector3.right * Random.Range(-xExtents, xExtents)
+                    + .5f * Vector3.up;
+            }
+
+            CoroutineRunner.ExecuteDelayed(_lemmingSpawnDelay.GetRandom(), SpawnLemmings);
         }
 
         // --- Public/Internal Methods ------------------------------------------------------------------------------------
         public void ReceiveBlock(BuildingBlock block)
         {
-            //Debug.Log($"Adding {block.BType} with height {block.BlockUpperBounds} to stack");
+            //Debug.Log($"Adding {block.BType} with height {block.BlockUpperBounds} to stack");            
             block.transform.SetParent(null);
-            PlaceBlock(block);
-        }
-        public void DestroyBlock(BuildingBlock block)
-        {
-            if(_blockStack.Peek() == block)
-            {
-                Debug.Log($"Boom");
-                MegaFactory.Instance.ReturnFactoryItem(_blockStack.Pop());
-            }
-            //check if block beneath is same type and destroy if its wood
-        }
-        // --- Protected/Private Methods ----------------------------------------------------------------------------------
-        private void PlaceBlock(BuildingBlock block)
-        {
             float duration = _receiveDuration.GetRandom();
-            //Debug.Log($"{duration}");
-            if(_blockStack.Count == 0)
-            {
-                // StartCoroutine(PlaceBlockRoutine(block.transform, transform.position, duration));
-                StartCoroutine(PlaceBlockRoutine(block.transform, transform.position, duration));
-            }
-            else
-            {
-                BuildingBlock lastblock = _blockStack.Peek();
-                Vector3 newPos = lastblock.transform.position;
-                newPos.y = lastblock.BlockUpperBounds;
-                StartCoroutine(PlaceBlockRoutine(block.transform, newPos, duration));
-            }
 
-            CoroutineRunner.ExecuteDelayed(duration, () =>
-            {
-                ParticleSystem pSystem = Instantiate(Resources.Load<ParticleSystem>("Particles/BoxPlace"), block.transform);
-                pSystem.transform.SetParent(block.transform);
-                _blockStack.Push(block);
-                Vector2 newLizardBoiPos = new Vector2(_lizardBoi.transform.position.x, block.BlockUpperBounds + _lizardBoiDistance);
-                StartCoroutine(PlaceBlockRoutine(_lizardBoi.transform, newLizardBoiPos, _receiveDuration.GetRandom()));
-
-            });
-
-            GameManager.Instance.OnStackChanged?.Invoke(this);
-
-            GameManager.AddPlayerScore(_player, block.Score);
+            // NOTE: Block can no longer be grabbed
+            block.Stack = this;
+            StartCoroutine(PlaceBlockRoutine(block, NextBlockPosition, duration));
         }
-        private IEnumerator PlaceBlockRoutine(Transform from, Vector2 to, float duration)
+
+        public void HitByChunk()
         {
-            float t = 0f;
-            Vector2 start = from.position;
-            while(t <= duration)
+            if(Blocks.Count == 0)
             {
-                t = (t + Time.deltaTime);
-                Vector2 newpos = Vector2.Lerp(start, to, t / duration);
-                from.position = newpos;
-                yield return null;
+                Debug.LogWarning($"{Logger.GetPre(this)} Chunk {name} was hit, but has no (more) blocks.");
+                return;
             }
 
+            if(Blocks.Peek().BType == BuildingBlock.BlockType.Unobtainium)
+                return;
+
+            BuildingBlock block = Blocks.Pop();
+            MegaFactory.Instance.ReturnFactoryItem(block);
+
+            if(block.BType == BuildingBlock.BlockType.Wood)
+                HitByChunk();
         }
-        private float CombinedHeight()
+
+        // --- Protected/Private Methods ----------------------------------------------------------------------------------
+        private IEnumerator PlaceBlockRoutine(BuildingBlock bb, Vector2 targetPos, float duration)
+        {
+            Transform block = bb.transform;
+            Vector2 startPos = block.position;
+            Quaternion startRot = block.rotation;
+
+            float elapsed = 0f;
+            while(elapsed < duration)
+            {
+                yield return null;
+
+                elapsed += Time.deltaTime;
+                float t = elapsed / duration;
+
+                block.position = Vector2.Lerp(startPos, targetPos, t);
+                if(t < .5f)
+                {
+                    block.rotation = Quaternion.Lerp(startRot, Quaternion.identity, 2f * t);
+                }
+            }
+
+            block.position = targetPos;
+            block.rotation = Quaternion.identity;
+
+            SoundManager.Play(bb.BType == BuildingBlock.BlockType.Wood ? SFX.Place_Block_Light
+                : bb.BType == BuildingBlock.BlockType.Rock ? SFX.Place_Block_Normal
+                : SFX.Place_Block_Hard, block.position);
+
+            ParticleSystem pSystem = Instantiate(Resources.Load<ParticleSystem>("Particles/BoxPlace"), block.transform, false);
+
+            block.SetParent(this.transform);
+            Blocks.Push(bb);
+            GameManager.Instance.onStackChanged?.Invoke(this);
+            //GameManager.AddPlayerScore(_player, block.Score);
+        }
+
+        private float CalculateHeight()
         {
             float height = 0;
-            foreach(BuildingBlock block in _blockStack)
+            foreach(BuildingBlock block in Blocks)
             {
                 height += block.BlockHeight;
             }
+
             return height;
         }
-        private int CombinedStackScore()
+
+        private int CalculateScore()
         {
-            int height = 0;
-            foreach(BuildingBlock block in _blockStack)
+            int score = 0;
+            foreach(BuildingBlock block in Blocks)
             {
-                height += block.Score;
+                score += block.Score;
             }
-            return height;
+
+            return score;
         }
+
         // --------------------------------------------------------------------------------------------
     }
 
