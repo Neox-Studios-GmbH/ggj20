@@ -317,6 +317,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f1935d3e04011c44a75347967d87337, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _smoothingFactor: 2
+  _sigma: 0.1
+  _options:
+  - Strength: 0
+    TimeLength: 0.2
+    ShakeStrength: {x: 0.2, y: 0.2}
+  - Strength: 1
+    TimeLength: 0.3
+    ShakeStrength: {x: 0.3, y: 0.3}
+  - Strength: 2
+    TimeLength: 0.5
+    ShakeStrength: {x: 0.4, y: 0.4}
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0
