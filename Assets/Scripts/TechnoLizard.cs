@@ -20,13 +20,16 @@ namespace GGJ20
         // --- Nested Classes ---------------------------------------------------------------------------------------------
 
         // --- Fields -----------------------------------------------------------------------------------------------------
-        [SerializeField] private Transform _playerStack;
+        [SerializeField] private Transform _playerStack = null;
+        [SerializeField] private GrapplingHook _hook;
         [SerializeField] private float _stackOffset = 5f;
         [Space]
+        [SerializeField] private Animator _bodyAnimator = null;
         [SerializeField, Min(0f)] private float _rotationSpeed = 90f;
         [SerializeField, Range(0f, 180f)] private float _maxAngle = 100f;
+        [Space]
         [SerializeField] private float _maxGrapplingChargeDuration = 1.5f;
-        [SerializeField] private Animator _bodyAnimator;
+        [SerializeField] private float _grappleCancelCooldown = .4f;
 
         private float _angle = 0f;
         private float _targetAngle = 0f;
@@ -42,7 +45,7 @@ namespace GGJ20
         // --- Unity Functions --------------------------------------------------------------------------------------------
         private void Awake()
         {
-
+            _grapplingDelay = new Delay(_grappleCancelCooldown);
 
         }
 
@@ -63,7 +66,7 @@ namespace GGJ20
         // --- Public/Internal Methods ------------------------------------------------------------------------------------
         public void OnAimInput(InputAction.CallbackContext context)
         {
-            Vector2 dir = (Vector2)context.ReadValueAsObject();
+            Vector2 dir = context.ReadValue<Vector2>();
             if(dir == Vector2.zero)
                 return;
 
@@ -75,7 +78,7 @@ namespace GGJ20
             if(CurrentState == State.Firing || !_grapplingDelay.HasElapsed)
                 return;
 
-            bool isPress = (float)context.ReadValueAsObject() == 1f;
+            bool isPress = context.ReadValue<float>() == 1f;
             if(isPress && CurrentState == State.Rotating)
             {
                 _chargeStartTime = Time.time;
@@ -87,7 +90,11 @@ namespace GGJ20
                 CurrentState = State.Firing;
 
                 float chargeT = Mathf.InverseLerp(0f, _maxGrapplingChargeDuration, chargeDuration);
-                // TODO: FireGrappling
+                _hook.Fire(chargeT, () =>
+                {
+                    Debug.Log("Gotcha!");
+                    CurrentState = State.Rotating;
+                });                
             }
         }
 

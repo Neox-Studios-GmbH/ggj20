@@ -9,109 +9,138 @@ namespace GGJ20
     public class GrapplingHook : MonoBehaviour
     {
         // --- Enums ------------------------------------------------------------------------------------------------------
+        public enum State
+        {
+            Idle = 0,
+            Forward = 1,
+            Backward = 2
+        }
 
         // --- Nested Classes ---------------------------------------------------------------------------------------------
 
         // --- Fields -----------------------------------------------------------------------------------------------------
-        private int _hookRange = 5;
-        private int _cableCount = 5;
-        private int _cablePassed = 0;
-        [SerializeField] private float _cableSpawnDistance = 1f;
-        [SerializeField] private Transform _hookCable;
-        [SerializeField] private float _hookSpeed = 4f;
+        [Header("Generation")]
+        [SerializeField, Min(0f)] private float _maxLength = 10f;
+        [SerializeField] private SpriteRenderer _firstPiece;
+        [SerializeField] private float _pieceOffset = .451f;
+        [SerializeField] private float _enableOffset = 1;
+        [Space]
+        [SerializeField] private Animator _animator;
+        [SerializeField] private Transform _head;
+        [Space]
+        [SerializeField] private FloatRange _forwardDuration = new FloatRange(.15f, .3f);
+        [SerializeField] private float _forwardSpeed = 50f;
+        [SerializeField] private float _forwardAcceleration = 200f;
+        [SerializeField] private float _backwardDelay = .3f;
+        [SerializeField] private float _backwardSpeed = 5f;
 
-        private float _lerpLimit = 0.0001f;
-        private bool _hasGrabed;
-        private bool _allCableHasPassed = false;
-        Vector3 originPos;
-        Vector3 endPosition;
-        bool isHooking = false;
+        private State _state = State.Idle;
+        private List<SpriteRenderer> _pieces;
+        private float _extension = 0f;
+        private float _currentSpeed;
 
-        private List<Transform> _cables = new List<Transform>();
-        private List<Transform> _cablesOriginTrans = new List<Transform>();
+        private Delay _forwardTimer;
+        private Action _onFinish;
 
-        SpriteRenderer spriteCable;
-        float spriteCableLenght;
         // --- Properties -------------------------------------------------------------------------------------------------
 
         // --- Unity Functions --------------------------------------------------------------------------------------------
         private void Awake()
         {
-            foreach (Transform t in _hookCable)
-            {
-                _cables.Add(t);
-                _cablesOriginTrans.Add(t);
-            }
-            _hookRange = _cables.Count;
-            _cableCount = _cables.Count;
+            _forwardTimer = new Delay(0f);
 
-            spriteCable = _cables[0].GetComponent<SpriteRenderer>();
-            spriteCableLenght = spriteCable.bounds.extents.y;
-
+            GeneratePieces();
+            UpdateVisibility();
         }
+
         void Update()
         {
-            if (Input.GetKeyDown("space") && !isHooking)
+            switch(_state)
             {
-                originPos = this.gameObject.transform.position;
-                endPosition = new Vector3(this.gameObject.transform.position.x + _hookRange, this.gameObject.transform.position.y, 0f);
-                switchIsHook();
-            }
-            if (isHooking)
-            {
-                this.gameObject.transform.position = Vector2.MoveTowards(this.gameObject.transform.position, endPosition, _hookSpeed * Time.deltaTime);
-                if (Vector3.Distance(transform.position, endPosition) < _lerpLimit)
-                {
-                    endPosition = originPos;
-                }
-                cableVisible();
-                if (Vector3.Distance(transform.position, originPos) < _lerpLimit)
-                {
-                    switchIsHook();
-                }
+                case State.Idle:
+                    break;
+                case State.Forward:
+                    Extend();
+                    break;
+                case State.Backward:
+                    Retract();
+                    break;
             }
         }
 
         // --- Public/Internal Methods ------------------------------------------------------------------------------------
-        public void switchIsHook()
+        public void Fire(float chargeT, Action onFinish = null)
         {
-            isHooking = !isHooking;
+            _currentSpeed = 0f;
+            _forwardTimer.ChangeDuration(_forwardDuration.Lerp(chargeT));
+
+            _state = State.Forward;
+            _onFinish = onFinish;
         }
-        private void hooking(Vector3 currentPos, Vector3 targetPos)
+
+        // --- Protected/Private Methods ----------------------------------------------------------------------------------
+        private void GeneratePieces()
         {
-            this.gameObject.transform.position = Vector2.MoveTowards(currentPos, targetPos, _hookSpeed * Time.deltaTime);
-        }
-        private void cableVisible()
-        {
+            _pieces = new List<SpriteRenderer> { _firstPiece };
 
-            if (Vector3.Distance(transform.position, originPos) > spriteCableLenght + _cablePassed && !_allCableHasPassed)
+            int amount = Mathf.CeilToInt(_maxLength / _pieceOffset);
+            for(int i = 1; i <= amount; i++)
             {
-                _cablePassed++;
-                _cables[_cableCount - _cablePassed].gameObject.SetActive(true);
-
-                if (_cableCount == _cablePassed + 1)
-                {
-                    _allCableHasPassed = true;
-                }
-                _cableSpawnDistance++;
-            }
-            if (Vector3.Distance(transform.position, originPos) > spriteCableLenght - _cablePassed && _allCableHasPassed)
-            {
-
-                _cables[_cableCount - _cablePassed].gameObject.SetActive(false);
-                _cablePassed--;
-                if (0 == _cablePassed)
-                {
-                    _allCableHasPassed = false;
-                }
-                _cableSpawnDistance--;
-
+                SpriteRenderer copy = Instantiate(_firstPiece, _firstPiece.transform.parent, true);
+                copy.transform.position -= transform.up * i * _pieceOffset;
+                copy.sortingOrder++;
+                _pieces.Add(copy);
             }
         }
+
+        // --------------------------------------------------------------------------------------------
+        private void Extend()
+        {
+            ChangeExtension(_maxLength, 1, _forwardAcceleration, _forwardSpeed);
+            UpdateVisibility();
+
+            if(_extension == _maxLength || _forwardTimer.HasElapsed)
+            {
+                _currentSpeed = 0f;
+                _state = State.Idle;
+                CoroutineRunner.ExecuteDelayed(_backwardDelay, () =>
+                {
+                    _state = State.Backward;
+                });
+            }
+        }
+
+        private void Retract()
+        {
+            ChangeExtension(0f, -1, _forwardAcceleration, _backwardSpeed);
+            UpdateVisibility();
+
+            if(_extension == 0f)
+            {
+                _state = State.Idle;
+                _onFinish?.Invoke();
+            }
+        }
+
+        private void ChangeExtension(float target, int direction, float acceleration, float targetSpeed)
+        {
+            _currentSpeed = Mathf.MoveTowards(_currentSpeed, targetSpeed, direction * acceleration * Time.deltaTime);
+            _extension = Mathf.MoveTowards(_extension, target, direction * _currentSpeed * Time.deltaTime);
+
+            _head.localPosition = Vector3.up * _extension;
+        }
+
+        // --------------------------------------------------------------------------------------------
+        private void UpdateVisibility()
+        {
+            for(int i = 0; i < _pieces.Count; i++)
+            {
+                _pieces[i].gameObject.SetActive(_pieces[i].transform.localPosition.y + _enableOffset >= -_extension);
+            }
+        }
+
+        // --------------------------------------------------------------------------------------------
     }
-    // --- Protected/Private Methods ----------------------------------------------------------------------------------
-
-    // --------------------------------------------------------------------------------------------
 
     // **************************************************************************************************************************************************
 }
