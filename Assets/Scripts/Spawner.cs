@@ -46,7 +46,7 @@ namespace GGJ20
             Grabable grab = GameManager.GetRandomBlockOrBoulder();
             if(grab is BuildingBlock block)
             {
-                Debug.Log($"is block!");
+                //Debug.Log($"is block!");
                 block.LoadData(transform);
                 //block.transform.position = transform.position;
             }

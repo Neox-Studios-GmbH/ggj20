@@ -7,7 +7,6 @@ using System.Linq;
 namespace GGJ20
 {
     [CreateAssetMenu(fileName = "BuildingBlockData", menuName = "GGJ/BlockData", order = 2)]
-
     public class BuildingBlockData : ScriptableObject
     {
         // --- Enums ------------------------------------------------------------------------------------------------------
@@ -21,9 +20,11 @@ namespace GGJ20
         // --- Fields -----------------------------------------------------------------------------------------------------
         [SerializeField] private Color _spriteColor;
         [SerializeField] private SpriteOrientation _spriteOrientation;
+        
         // --- Properties -------------------------------------------------------------------------------------------------
         public Color BlockColor => _spriteColor;
-        public SpriteOrientation _SpriteOrientation => _spriteOrientation;
+        public SpriteOrientation Orientation => _spriteOrientation;
+
         // --- Constructors -----------------------------------------------------------------------------------------------
 
         // --- Public/Internal Methods ------------------------------------------------------------------------------------

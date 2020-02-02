@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Grappling_Return
   m_EditorClassIdentifier: 
   _clip: {fileID: 8300000, guid: 2c5be8bdb2ccf1342a528f91688c4ded, type: 3}
-  _volume: 0.8
+  _volume: 0.6
   _pitch:
-    _min: 0.9
-    _max: 1.1
+    _min: 0.7
+    _max: 1

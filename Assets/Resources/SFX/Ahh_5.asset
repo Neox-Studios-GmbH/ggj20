@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Ahh_5
   m_EditorClassIdentifier: 
   _clip: {fileID: 8300000, guid: 39ae9aae8c5eb6d4e9f79485b6da8e9c, type: 3}
-  _volume: 1
+  _volume: 0.5
   _pitch:
     _min: 0.8
     _max: 1.1

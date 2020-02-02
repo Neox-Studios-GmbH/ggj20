@@ -29,6 +29,21 @@ namespace GGJ20
             return Random.Range(0, 2) * 2 - 1;
         }
 
+        public static Quaternion ZRotation()
+        {
+            return Quaternion.Euler(0f, 0f, Random.Range(0f, 360f));
+        }
+
+        public static bool Chance(float chance)
+        {
+            return Random.Range(0f, 1f) < chance;
+        }
+
+        public static T Pick<T>(params T[] elements)
+        {
+            return elements[Random.Range(0, elements.Length)];
+        }
+
         // --- Protected/Private Methods ----------------------------------------------------------------------------------
 
         // --------------------------------------------------------------------------------------------

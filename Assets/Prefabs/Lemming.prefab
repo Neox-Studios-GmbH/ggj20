@@ -28,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 3793225346415391692}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.2, y: 0.2, z: 1}
+  m_LocalScale: {x: 0.3, y: 0.3, z: 1}
   m_Children:
   - {fileID: 8720112003846646438}
   m_Father: {fileID: 0}
@@ -48,23 +48,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _type: 0
   _suicideJumpStrength: 5
-  _suicidalTendency: 5
+  _suicidalTendency: 2
   _suicideAngleRange:
     _min: 30
     _max: 80
   _suicideTorqueRange:
     _min: 1
     _max: 10
-  _runSpeed: 2
+  _runSpeed: 3
   _collider: {fileID: 3793225346415391688}
   _renderer: {fileID: 3929358124131038917}
   _rigidbody: {fileID: 3793225346415391689}
   _animator: {fileID: 7602100584913871544}
   _groundingMask:
     serializedVersion: 2
-    m_Bits: 512
-  _randomCheerChance: 0.5
-  _randomCheerInterval: 2
+    m_Bits: 1024
+  _rayLength: 0.5
+  _randomCheerChance: 0.1
+  _randomCheerInterval: 4
 --- !u!50 &3793225346415391689
 Rigidbody2D:
   serializedVersion: 4
@@ -152,7 +153,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 11bed9fc1661dcb479b1a880e3fbad28, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -170,9 +171,9 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: 1177764869
+  m_SortingLayer: 3
+  m_SortingOrder: 1
   m_Sprite: {fileID: -3500276848710943815, guid: 594a46ea403d30940badbb5d6672bd55,
     type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

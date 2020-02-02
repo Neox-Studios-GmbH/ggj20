@@ -18,7 +18,7 @@ namespace GGJ20
         Grab_Block_Normal = 11,
         Grab_Block_Light = 12,
         //Grab_Boulder = 13,
-        Grab_LaveChunk = 14,
+        Grab_LavaChunk = 14,
 
         Place_Block_Hard = 20,
         Place_Block_Normal = 22,

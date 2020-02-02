@@ -43,7 +43,7 @@ namespace GGJ20
                 Destroy(this);
             }
             Instance = this;
-            DontDestroyOnLoad(Instance);
+            //DontDestroyOnLoad(Instance);
         }
 
         private void Start()
@@ -69,6 +69,7 @@ namespace GGJ20
             item.gameObject.SetActive(true);
             return item;
         }
+
         public T GetFactoryItem<T>(FactoryType type) where T : FactoryItem
         {
             return GetFactoryItem(type) as T;

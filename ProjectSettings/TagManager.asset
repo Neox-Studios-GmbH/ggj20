@@ -15,8 +15,8 @@ TagManager:
   - 
   - Lemming
   - Block
-  - 
-  - 
+  - LemmingFloor
+  - Lava
   - 
   - 
   - 
@@ -38,17 +38,23 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: BG
+    uniqueID: 1024020949
+    locked: 0
+  - name: BG Lava
+    uniqueID: 2426486549
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0
   - name: GrapplingHook
     uniqueID: 3507331715
     locked: 0
-  - name: Player
-    uniqueID: 1728287713
-    locked: 0
   - name: Blocks
     uniqueID: 1177764869
+    locked: 0
+  - name: Player
+    uniqueID: 1728287713
     locked: 0
   - name: LavaPool
     uniqueID: 605882171

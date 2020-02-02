@@ -10,12 +10,23 @@ namespace GGJ20
     {
 
         // --- Enums ------------------------------------------------------------------------------------------------------
+        public enum State
+        {
+            Falling = 0,
+            Flung = 1
+        }
 
         // --- Nested Classes ---------------------------------------------------------------------------------------------
 
         // --- Fields -----------------------------------------------------------------------------------------------------
+        [SerializeField] private float _flingDuration = 1f;
         [SerializeField] private FloatRange _explosionRange = new FloatRange(2, 8);
-        private Action DoExplosionStuff;
+
+        private State _state = State.Falling;
+        private Vector3 _startPosition, _targetPosition;
+        private float _flingT;
+        private PlayerStack _targetStack;
+
         // --- Properties -------------------------------------------------------------------------------------------------
 
         // --- Unity Functions --------------------------------------------------------------------------------------------
@@ -24,50 +35,78 @@ namespace GGJ20
             base.Awake();
         }
 
+        private void OnEnable()
+        {
+            _rb.bodyType = RigidbodyType2D.Dynamic;
+            _state = State.Falling;
+        }
+
+        private void Update()
+        {
+            switch(_state)
+            {
+                case State.Falling:
+                    break;
+                case State.Flung:
+                    FlyTowardsTarget();
+                    break;
+            }
+        }
+
         // --- Public/Internal Methods ------------------------------------------------------------------------------------
 
+
+
         // --- Protected/Private Methods ----------------------------------------------------------------------------------
-        protected override void HandleGrab(Players player)
+        public override void OnGrab(GrapplingHook hook)
         {
-            PlayerStack stack = GameManager.PlayerStackForPlayer(player);
-            //Debug.Log($"{Logger.GetPre(this)} hit Lava Chunk, now throwing at {stack.BlockStack.Peek().BType} ");
-            if(stack.BlockStack.Count == 0)
+            _targetStack = GameManager.GetEnemyStack(hook.Lizard.Stack);
+            if(_targetStack.Blocks.Count == 0)
             {
                 Debug.Log($"{Logger.GetPre(this)} Nothing to shoot at!");
+                //this.Return();
                 return;
             }
-            BuildingBlock block = stack.BlockStack.Peek();
-            Vector2 dir = block.transform.position - transform.position;
-            dir = dir.normalized;
-            _rb.velocity = Vector2.zero;
-            _rb.gravityScale = 0;
-            _rb.AddForce(dir * _explosionRange.GetRandom(), ForceMode2D.Impulse);
-            DoExplosionStuff += () =>
-            {
-                if(block.BType == BuildingBlock.BlockType.Wood)
-                    stack.DestroyBlock(block);
-            };
-            //transform.forward = dir;
 
-            // _rb.AddForceAtPosition(transform.forward * 20, new Vector2(block.transform.position.x, block.transform.position.y), ForceMode2D.Impulse);
+            base.OnGrab(hook);
+            SoundManager.Play(SFX.Grab_LavaChunk, transform.position);
 
+            _startPosition = transform.position;
+
+            BuildingBlock block = _targetStack.Blocks.Peek();
+            _targetPosition = block.transform.position + Vector3.up * block.BlockHeight;
+
+            _flingT = 0f;
+            _state = State.Flung;
         }
 
-        private void OnCollisionEnter2D(Collision2D collision)
+        private void FlyTowardsTarget()
         {
-            BuildingBlock block = collision.gameObject.GetComponent<BuildingBlock>();
+            _flingT = Mathf.Clamp01(_flingT + (Time.deltaTime / _flingDuration));
 
-            if(block != null)
+            float tX = _flingT;
+            float tY = _flingT * _flingT;
+            transform.position = new Vector3(
+                x: Mathf.Lerp(_startPosition.x, _targetPosition.x, tX),
+                y: Mathf.Lerp(_startPosition.y, _targetPosition.y, tY));
+
+            if(_flingT == 1f)
             {
-                Vector2 pos = collision.contacts[0].point;
-                ParticleSystem psSystem = Instantiate(Resources.Load<ParticleSystem>("Particles/LavaChunkExplosion"));
-                psSystem.transform.position = pos;
-                DoExplosionStuff?.Invoke();
-
-
-                MegaFactory.Instance.ReturnFactoryItem(this);
+                HitStack();
             }
         }
+
+        private void HitStack()
+        {
+            _targetStack.HitByChunk();
+
+            SoundManager.Play(SFX.LavaChunk_Explosion, transform.position);
+            ParticleSystem psSystem = Instantiate(Resources.Load<ParticleSystem>("Particles/LavaChunkExplosion"));
+            psSystem.transform.position = this.transform.position;
+
+            MegaFactory.Instance.ReturnFactoryItem(this);
+        }
+
         // --------------------------------------------------------------------------------------------
     }
 
