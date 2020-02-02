@@ -31,6 +31,7 @@ namespace GGJ20
         [SerializeField] private List<ScreenShakeOptions> _options;
 
         private int _currentMaxHeight = 0;
+        private float _shakeCooldown = 0.05f;
 
         // --- Properties -------------------------------------------------------------------------------------------------
         private void Start()
@@ -77,7 +78,24 @@ namespace GGJ20
 
         private void ShakeScreen(Vector2 strength, float t)
         {
+            StartCoroutine(ShakeScreenCoroutine(strength, t));
+        }
 
+        private IEnumerator ShakeScreenCoroutine(Vector2 s, float t)
+        {
+            float elapsed = 0f;
+            while(t < elapsed)
+            {
+                transform.position += new Vector3();
+                yield return new WaitForSeconds(_shakeCooldown);
+                transform.position += new Vector3();
+                yield return new WaitForSeconds(_shakeCooldown);
+                transform.position += new Vector3();
+                yield return new WaitForSeconds(_shakeCooldown);
+                transform.position += new Vector3();
+                yield return new WaitForSeconds(_shakeCooldown);
+                elapsed += 4 * _shakeCooldown;
+            }
         }
         // --------------------------------------------------------------------------------------------
 
