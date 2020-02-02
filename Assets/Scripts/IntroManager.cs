@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using UnityEngine;
-using System.Linq;
+using UnityEngine.UI;
 
 namespace GGJ20
 {
@@ -10,7 +8,7 @@ namespace GGJ20
     {
         // --- Enums ------------------------------------------------------------------------------------------------------
 
-        enum state { Idle, PrepareScene, GirlWalk, Edge, FadeToGame }
+        enum state { Idle, PrepareScene, GirlWalk, Edge, FadeToGame, Announcer, MoveMessage, AnnouncerEnd }
         state State;
 
         // --- Nested Classes ---------------------------------------------------------------------------------------------
@@ -20,9 +18,13 @@ namespace GGJ20
         [SerializeField] GameObject _gameAsset;
 
         [Header("Scene")]
-        [SerializeField] UnityEngine.UI.RawImage _backgroundRawImage;
+        [SerializeField] UnityEngine.UI.RawImage CityImage;
+        [SerializeField] UnityEngine.UI.RawImage HillsImage;
         [SerializeField] UnityEngine.UI.RawImage GrassLeft, GrassRight;
+        [SerializeField] UnityEngine.UI.RawImage CaveImage;
         [SerializeField] [Range(0f, 10f)] float SceneScrollingSpeed;
+        public AudioClip BackgroundMusic;
+        public AudioClip ButtonPressSound;
 
         [Header("Splash")]
         [SerializeField] UnityEngine.UI.Text _startText;
@@ -40,6 +42,7 @@ namespace GGJ20
         bool RotDirectionSwitch;
 
         [Range(1f, 50f)] public float PanSpeed;
+        public float GravityStart;
         float DistanceWalked;
         float Gravity;
         float FallTimer;
@@ -49,6 +52,29 @@ namespace GGJ20
         public CanvasGroup FullscreenFade;
         [Range(0f, 5f)] public float ScreenFadeDuration;
 
+        public AudioClip FloorCrackSound;
+        public AudioClip GirlScreamSound;
+        public float CaveScrollSpeed;
+
+        [Header("Announcer")]
+        public AudioClip MessageSounds;
+        public float MessageDelay;
+        public float MessageSpeed;
+        float MessageTimer;
+        int MessageIndex;
+        public AudioSource Audio;
+
+        [System.Serializable]
+        public class audio_message
+        {
+            public float TargetX;
+            public Image Image;
+            public float Delay;
+        }
+
+        public audio_message[] Messages;
+
+
         // --- Properties -------------------------------------------------------------------------------------------------
 
         // --- Unity Functions --------------------------------------------------------------------------------------------
@@ -56,6 +82,14 @@ namespace GGJ20
         {
             GirlGroundPosition = Girl.position;
             State = state.Idle;
+
+            Audio.clip = BackgroundMusic;
+            Audio.Play();
+
+            MessageDelay = Messages[0].Delay;
+
+            Gravity = GravityStart;
+
         }
         private void Update()
         {
@@ -75,8 +109,9 @@ namespace GGJ20
                         AnimateGirl();
 
                         int Before = (int)GrassLeft.uvRect.x;
-                        Scroll(_backgroundRawImage, SceneScrollingSpeed);
-                        Scroll(GrassLeft, SceneScrollingSpeed * 1.5f);
+                        ScrollX(HillsImage, SceneScrollingSpeed);
+                        ScrollX(CityImage, SceneScrollingSpeed * 1.5f);
+                        ScrollX(GrassLeft, SceneScrollingSpeed * 2f);
                         int After = (int)GrassLeft.uvRect.x;
 
                         // Process input
@@ -86,7 +121,7 @@ namespace GGJ20
                         {
                             State = state.PrepareScene;
                             _startText.gameObject.SetActive(false);
-
+                            Audio.PlayOneShot(ButtonPressSound);
                         }
 
                     }
@@ -97,8 +132,9 @@ namespace GGJ20
                         AnimateGirl();
 
                         int Before = (int)GrassLeft.uvRect.x;
-                        Scroll(_backgroundRawImage, SceneScrollingSpeed);
-                        Scroll(GrassLeft, SceneScrollingSpeed * 1.5f);
+                        ScrollX(HillsImage, SceneScrollingSpeed);
+                        ScrollX(CityImage, SceneScrollingSpeed * 1.5f);
+                        ScrollX(GrassLeft, SceneScrollingSpeed * 2f);
                         int After = (int)GrassLeft.uvRect.x;
 
                         if (After > Before)
@@ -116,7 +152,8 @@ namespace GGJ20
                 case state.GirlWalk:
                     {
                         AnimateGirl();
-                        Scroll(_backgroundRawImage, SceneScrollingSpeed);
+                        ScrollX(HillsImage, SceneScrollingSpeed);
+                        ScrollX(CityImage, SceneScrollingSpeed * 1.5f);
 
                         float Delta = -PanSpeed * Time.deltaTime;
                         TranslateX(GrassLeft.transform, Delta);
@@ -128,6 +165,9 @@ namespace GGJ20
                             Girl.position = GirlGroundPosition;
                             Girl.eulerAngles = Vector3.zero;
                             State = state.Edge;
+                            Audio.Stop();
+                            Audio.PlayOneShot(GirlScreamSound);
+                            Audio.PlayOneShot(FloorCrackSound);
                         }
 
                     }
@@ -139,7 +179,7 @@ namespace GGJ20
                         TranslateX(GrassLeft.transform, -Delta);
                         TranslateX(GrassRight.transform, Delta);
 
-                        Gravity += Time.deltaTime / 6f;
+                        Gravity += Time.deltaTime / 4f;
                         float RotSpeed = 18f * Time.deltaTime;
 
                         TranslateY(Girl, -Gravity);
@@ -155,14 +195,83 @@ namespace GGJ20
                         if (FallTimer > FallTime)
                         {
                             State = state.FadeToGame;
-                            StartCoroutine(FadeToGame());
+                            StartCoroutine(FadeToAnnouncement());
                         }
                     }
                     break;
 
                 case state.FadeToGame:
                     {
+                        // Wait On Coroutine to finsh
+                    }
+                    break;
 
+
+
+
+
+                case state.Announcer:
+                    {
+                        if (MessageTimer > MessageDelay)
+                        {
+                            MessageTimer = 0;
+
+
+                            State = state.MoveMessage;
+                            return;
+
+                        }
+
+                        MessageTimer += Time.deltaTime;
+
+                    }
+                    break;
+
+                case state.MoveMessage:
+                    {
+                        audio_message Message = Messages[MessageIndex];
+                        Transform T = Message.Image.transform;
+                        Vector2 Pos = T.localPosition;
+
+                        Pos.x = Mathf.MoveTowards(Pos.x, Message.TargetX, MessageSpeed * Time.deltaTime);
+                        T.localPosition = Pos;
+
+                        if (Pos.x == Message.TargetX)
+                        {
+                            ++MessageIndex;
+
+                            if (MessageIndex == Messages.Length)
+                            {
+                                State = state.AnnouncerEnd;
+                                MessageTimer = 0;
+
+                            }
+                            else
+                            {
+                                State = state.Announcer;
+                                MessageDelay = Messages[MessageIndex].Delay;
+                            }
+                        }
+                    }
+                    break;
+
+
+
+                case state.AnnouncerEnd:
+                    {
+                        if (Audio.isPlaying)
+                        {
+                            //
+                        }
+                        else
+                        {
+                            if (MessageTimer > 1f)
+                            {
+                                StartCoroutine(FadeToGame());
+                            }
+
+                            MessageTimer += Time.deltaTime;
+                        }
                     }
                     break;
             }
@@ -188,6 +297,28 @@ namespace GGJ20
             FullscreenFade.alpha = TargetAlpha;
         }
 
+        IEnumerator FadeToAnnouncement()
+        {
+            yield return LerpAlpha(1f, ScreenFadeDuration);
+
+            CityImage.gameObject.SetActive(false);
+            HillsImage.gameObject.SetActive(false);
+            GrassLeft.gameObject.SetActive(false);
+            GrassRight.gameObject.SetActive(false);
+
+            CaveImage.transform.localPosition = Vector3.zero;
+            StartCoroutine(ScrollCave());
+
+            yield return LerpAlpha(0f, ScreenFadeDuration);
+
+            State = state.Announcer;
+            Audio.clip = MessageSounds;
+            Audio.Play();
+
+
+        }
+
+
         IEnumerator FadeToGame()
         {
             yield return LerpAlpha(1f, ScreenFadeDuration);
@@ -195,6 +326,16 @@ namespace GGJ20
             Destroy(this.gameObject);
             Instantiate(_gameAsset);
         }
+
+        IEnumerator ScrollCave()
+        {
+            while (true)
+            {
+                ScrollY(CaveImage, -CaveScrollSpeed);
+                yield return null;
+            }
+        }
+
 
 
         void TranslateX(Transform T, float Value)
@@ -246,11 +387,19 @@ namespace GGJ20
             }
         }
 
-        void Scroll(UnityEngine.UI.RawImage Image, float Speed)
+        void ScrollX(UnityEngine.UI.RawImage Image, float Speed)
         {
             Rect UVRect;
             UVRect = Image.uvRect;
             UVRect.x += Speed * Time.deltaTime;
+            Image.uvRect = UVRect;
+        }
+
+        void ScrollY(UnityEngine.UI.RawImage Image, float Speed)
+        {
+            Rect UVRect;
+            UVRect = Image.uvRect;
+            UVRect.y += Speed * Time.deltaTime;
             Image.uvRect = UVRect;
         }
 
