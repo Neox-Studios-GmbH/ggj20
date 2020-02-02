@@ -14,7 +14,9 @@ namespace GGJ20
 
         // --- Fields -----------------------------------------------------------------------------------------------------
         [SerializeField] private Players _player;
+        [SerializeField] private TechnoLizard _lizardBoi;
         private Stack<BuildingBlock> _blockStack;
+        private float _lizardBoiDistance;
         // --- Properties -------------------------------------------------------------------------------------------------
         public Stack<BuildingBlock> BlockStack => _blockStack;
         public int CombinedStackHeight => GetCombinedStackHeight();
@@ -22,6 +24,8 @@ namespace GGJ20
         private void Awake()
         {
             _blockStack = new Stack<BuildingBlock>();
+            //_lizardBoiDistance = transform.position - _lizardBoi.transform.position;
+            _lizardBoiDistance = Vector2.Distance(transform.position, _lizardBoi.transform.position);
         }
 
         // --- Public/Internal Methods ------------------------------------------------------------------------------------
@@ -30,9 +34,13 @@ namespace GGJ20
             //Debug.Log($"Adding {block.BType} with height {block.BlockUpperBounds} to stack");
             PlaceBlock(block);
         }
-        public void DestroyBlock()
+        public void DestroyBlock(BuildingBlock block)
         {
-            Debug.Log($"Boom");
+            if(_blockStack.Peek() == block)
+            {
+                Debug.Log($"Boom");
+                MegaFactory.Instance.ReturnFactoryItem(_blockStack.Pop());
+            }
             //check if block beneath is same type and destroy if its wood
         }
         // --- Protected/Private Methods ----------------------------------------------------------------------------------
@@ -52,6 +60,18 @@ namespace GGJ20
             ParticleSystem pSystem = Instantiate(Resources.Load<ParticleSystem>("Particles/BoxPlace"), block.transform);
             pSystem.transform.SetParent(block.transform);
             _blockStack.Push(block);
+
+            //Todo: Move LizardBoi up
+            Vector2 newLizardBoiPos = new Vector2(_lizardBoi.transform.position.x, block.BlockUpperBounds + _lizardBoiDistance);
+            float t = 0;
+
+            //while(t <= 1)
+            //{
+            //    t = t + (2 * Time.deltaTime);
+            //    Debug.Log($"{Logger.GetPre(this)} {t}");
+            //    _lizardBoi.transform.position = Vector2.Lerp(_lizardBoi.transform.position, newLizardBoiPos, t * Time.deltaTime);
+            //}
+            _lizardBoi.transform.position = newLizardBoiPos;
             GameManager.AddPlayerScore(_player, block.Score);
         }
 
