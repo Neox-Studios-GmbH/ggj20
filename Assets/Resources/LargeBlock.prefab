@@ -72,7 +72,7 @@ SpriteRenderer:
   m_SortingOrder: 1
   m_Sprite: {fileID: 2338206870756560630, guid: 558bebb450783ed4580d6c87482fb629,
     type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 0, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -158,7 +158,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_Sprite: {fileID: -7558941075747357520, guid: 558bebb450783ed4580d6c87482fb629,
     type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 0, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -203,10 +203,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _type: 3
   _isGrabbed: 0
-  _fallSpeed: 0.167
+  _fallSpeed:
+    _min: 0.125
+    _max: 0.65
   _blockHeight: 2
   _blockType: 0
   _stairSprite: {fileID: 8744280474307011897}
+  _mainSprite: {fileID: 8744280475880450096}
 --- !u!61 &8744280475880451021
 BoxCollider2D:
   m_ObjectHideFlags: 0

@@ -18,17 +18,19 @@ namespace GGJ20
         // --- Enums ------------------------------------------------------------------------------------------------------
 
         // --- Nested Classes ---------------------------------------------------------------------------------------------
-
+        public struct PlayerScores
+        {
+            public int playerOne;
+            public int playerTwo;
+        }
         // --- Fields -----------------------------------------------------------------------------------------------------
         [SerializeField] private PlayerStack _stackPlayerOne;
         [SerializeField] private PlayerStack _stackPlayerTwo;
-        [SerializeField] private Transform[] _blockSpawn;
-        [SerializeField] private Transform _playerOneLavaSpawn;
-        [SerializeField] private Transform _playerTwoLavaSpawn;
-        [SerializeField] private float _minSpawnTime, _maxSpawnTime;
-        [SerializeField] private float _intervall;
+
+        private const int MAX_SCORE = 450;
+        private PlayerScores _score;
         // --- Properties -------------------------------------------------------------------------------------------------
-        public static PlayerStack StackPlayerOne => Instance._stackPlayerOne;
+
         // --- Unity Functions --------------------------------------------------------------------------------------------
         private void Awake()
         {
@@ -41,13 +43,13 @@ namespace GGJ20
         }
         private void Update()
         {
-            _intervall -= Time.deltaTime;
-            if(_intervall <= 0)
-            {
-                SpawnBlock();
-                SpawnLava();
-                _intervall = 3f;
-            }
+            //_intervall -= Time.deltaTime;
+            //if(_intervall <= 0)
+            //{
+            //    SpawnBlock();
+            //    SpawnLava();
+            //    _intervall = 3f;
+            //}
         }
         // --- Public/Internal Methods ------------------------------------------------------------------------------------
         public static PlayerStack PlayerStackForPlayer(Players player)
@@ -55,29 +57,45 @@ namespace GGJ20
             return player == Players.PlayerOne ? Instance._stackPlayerOne : Instance._stackPlayerTwo;
         }
 
+        public static Grabable GetRandomBlockOrBoulder()
+        {
+            return Instance._GetRandomBlockOrBoulder();
+        }
+        public static LavaChunk GetLavaChunk()
+        {
+            return Instance._GetChunk();
+        }
+
+        public static void AddPlayerScore(Players player, int score)
+        {
+            Instance._AddPlayerScore(player, score);
+        }
+
         // --- Protected/Private Methods ----------------------------------------------------------------------------------
-        private void SpawnBlock()
+        private void _AddPlayerScore(Players player, int score)
         {
-            Grabable block = GetRandomBlockOrBoulder();
+            switch(player)
+            {
+                case Players.PlayerOne:
+                    _score.playerOne += score;
 
-            Vector3 pos = _blockSpawn[UnityEngine.Random.Range(0, 1)].position;
-            block.transform.position = pos;
-
+                    break;
+                case Players.PlayerTwo:
+                    _score.playerTwo += score;
+                    break;
+            }
+            if(IsGameOver())
+            {
+                Players _player = _score.playerOne > _score.playerTwo ? Players.PlayerOne : Players.PlayerTwo;
+                Debug.Log($"Game over Bro {_player} won!");
+            }
+            Debug.Log($"{Logger.GetPre(this)}  ScorePlayerOne {_score.playerOne} ScorePlayerTwo {_score.playerTwo}");
         }
-        private void SpawnLava()
-        {
-            Grabable grab = GetChunkOrBoulder();
-
-            //System.Random r = new System.Random();
-
-            grab.transform.position = UnityEngine.Random.Range(0, 2) == 1 ? _playerOneLavaSpawn.position : _playerTwoLavaSpawn.position;
-        }
-        private LavaChunk GetChunkOrBoulder()
+        private LavaChunk _GetChunk()
         {
             return MegaFactory.Instance.GetFactoryItem<LavaChunk>(MegaFactory.FactoryType.LavaChunk);
-
         }
-        private Grabable GetRandomBlockOrBoulder()
+        private Grabable _GetRandomBlockOrBoulder()
         {
             int randomStuff = UnityEngine.Random.Range(0, 6);
             if(randomStuff > 3)
@@ -85,7 +103,7 @@ namespace GGJ20
 
             BuildingBlock.BuildingBlockHeight blockType = (BuildingBlock.BuildingBlockHeight)randomStuff;
 
-            Debug.Log($"{blockType}");
+            //Debug.Log($"{blockType}");
             switch(blockType)
             {
                 case BuildingBlock.BuildingBlockHeight.Small:
@@ -96,6 +114,11 @@ namespace GGJ20
                 case BuildingBlock.BuildingBlockHeight.Large:
                     return MegaFactory.Instance.GetFactoryItem<BuildingBlock>(MegaFactory.FactoryType.LargeBlock);
             }
+        }
+
+        public bool IsGameOver()
+        {
+            return _score.playerOne >= MAX_SCORE || _score.playerTwo >= MAX_SCORE;
         }
         // --------------------------------------------------------------------------------------------
     }

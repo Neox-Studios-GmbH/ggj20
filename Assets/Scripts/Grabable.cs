@@ -17,7 +17,8 @@ namespace GGJ20
         // --- Fields -----------------------------------------------------------------------------------------------------
         [Header("Testing")]
         [SerializeField] private bool _isGrabbed;
-        [SerializeField, Range(0.1f, 1.5f)] private float _fallSpeed;
+        //[SerializeField, Range(0.1f, 1.5f)] private float _fallSpeed;
+        [SerializeField] private FloatRange _fallSpeed = new FloatRange(0.125f, .65f);
         [Space]
         protected Rigidbody2D _rb;
         protected BoxCollider2D _collider;
@@ -31,7 +32,7 @@ namespace GGJ20
         {
             _collider = GetComponent<BoxCollider2D>();
             _rb = GetComponent<Rigidbody2D>();
-            _rb.gravityScale = _fallSpeed;
+            _rb.gravityScale = _fallSpeed.GetRandom();
             _startPos = transform.position;
         }
         private void Update()
@@ -54,12 +55,6 @@ namespace GGJ20
             _isGrabbed = true;
             HandleGrab(player);
         }
-        public void Spawn(float fallspeed, Vector2 spawnPos)
-        {
-            transform.position = spawnPos;
-            _fallSpeed = fallspeed;
-            _isGrabbed = false;
-        }
         // --- Protected/Private Methods ----------------------------------------------------------------------------------   
         protected abstract void HandleGrab(Players player);
         private void OnTriggerEnter2D(Collider2D collision)
@@ -71,8 +66,10 @@ namespace GGJ20
         }
         private void Return()
         {
-            Debug.Log($"Returning to Spawn");
+            //Debug.Log($"Returning to Spawn");
             _rb.velocity = Vector2.zero;
+            _rb.rotation = 0;
+            _isGrabbed = false;
             MegaFactory.Instance.ReturnFactoryItem(this);
         }
 
