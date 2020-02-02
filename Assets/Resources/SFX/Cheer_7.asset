@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Cheer_7
   m_EditorClassIdentifier: 
   _clip: {fileID: 8300000, guid: 579e24f4693b1fe4daca8ad55ac8ccf8, type: 3}
-  _volume: 1
+  _volume: 0.5
   _pitch:
     _min: 0.8
     _max: 1.1

@@ -10,7 +10,7 @@ namespace GGJ20
         // --- Enums ------------------------------------------------------------------------------------------------------
         public enum State
         {
-            Idle = 0,
+            Escalating = 0,
             Run = 1,
             Suicide = 2
         }
@@ -30,28 +30,37 @@ namespace GGJ20
         [SerializeField] private Rigidbody2D _rigidbody;
         [SerializeField] private Animator _animator;
         [SerializeField] private LayerMask _groundingMask;
+        [SerializeField] private float _rayLength = .5f;
 
         [Header("Cheers")]
         [SerializeField] private float _randomCheerChance;
         [SerializeField] private float _randomCheerInterval;
 
-        private State _state = State.Idle;
+        private State _state = State.Escalating;
 
         private int _runningDirection = 1;
         private float _suicideRate;
         private Delay _cheerCooldown;
+        private LemmingEscalator _escalator;
 
         private readonly FloatRange SUICIDE_RANGE = new FloatRange(0.005f, 0.02f);
         private readonly int ANIM_IS_FLAILING = Animator.StringToHash("IsFlailing");
         private readonly int ANIM_SUICIDE = Animator.StringToHash("Suicide");
 
+        private const float ESCALATOR_SPEED = 2.5f;
+
         // --- Properties -------------------------------------------------------------------------------------------------
         public int SuicidalTendency { get => _suicidalTendency; set { _suicidalTendency = Mathf.Clamp(value, 1, 5); } }
 
         // --- Unity Functions --------------------------------------------------------------------------------------------
+        private void OnEnable()
+        {
+            _rigidbody.bodyType = RigidbodyType2D.Kinematic;
+        }
+
         private void Start()
         {
-            _runningDirection = Random.Range(0, 2) * 2 - 1;
+            _runningDirection = Randomizer.PlusMinusOne(); ;
             _renderer.flipX = _runningDirection == -1;
 
             _cheerCooldown = new Delay(_randomCheerInterval);
@@ -64,8 +73,8 @@ namespace GGJ20
         {
             switch(_state)
             {
-                case State.Idle:
-                    // TODO: Locate end of escalator and switch to Run
+                case State.Escalating:
+                    Escalate();
                     break;
                 case State.Run:
                     Run();
@@ -74,6 +83,12 @@ namespace GGJ20
                     break;
                 case State.Suicide:
                     break;
+            }
+
+            // Better safe than sorry
+            if(transform.position.y < -10f)
+            {
+                MegaFactory.Instance.ReturnFactoryItem(this);
             }
         }
 
@@ -86,11 +101,14 @@ namespace GGJ20
             _state = state;
             switch(_state)
             {
-                case State.Idle:
+                case State.Escalating:
+                    _escalator.Enter();
                     _animator.SetBool(ANIM_IS_FLAILING, false);
+                    _renderer.sortingOrder = 1;
                     break;
                 case State.Run:
                     _animator.SetBool(ANIM_IS_FLAILING, true);
+                    _renderer.sortingOrder = 3;
                     break;
                 case State.Suicide:
                     Suicide();
@@ -107,7 +125,7 @@ namespace GGJ20
                 p1 += Vector2.right * bounds.size.x;
             }
 
-            Vector2 p2 = p1 + Vector2.down;
+            Vector2 p2 = p1 + Vector2.down * _rayLength;
             RaycastHit2D groundHit = Physics2D.Linecast(p1, p2, _groundingMask);
             Debug.DrawLine(p1, p2, Color.green, Time.deltaTime);
 
@@ -121,12 +139,22 @@ namespace GGJ20
                 {
                     Flip();
                 }
+
+                return;
+            }
+
+            _escalator = groundHit.collider.GetComponent<LemmingEscalator>();
+            if(_escalator != null)
+            {
+                SwitchState(State.Escalating);
             }
         }
 
         private void Suicide()
         {
             _animator.SetTrigger(ANIM_SUICIDE);
+
+            _rigidbody.bodyType = RigidbodyType2D.Dynamic;
 
             _rigidbody.constraints = RigidbodyConstraints2D.None;
             Vector2 suicideDirection = Quaternion.Euler(0f, 0f, _suicideAngleRange.GetRandom() * _runningDirection)
@@ -137,6 +165,7 @@ namespace GGJ20
                 ForceMode2D.Impulse);
 
             SoundManager.PlayRandomAhh(transform.position);
+            CoroutineRunner.ExecuteDelayed(2f, () => MegaFactory.Instance.ReturnFactoryItem(this));
         }
 
         private void Flip()
@@ -163,6 +192,20 @@ namespace GGJ20
                 {
                     SoundManager.PlayRandomCheer(transform.position);
                 }
+            }
+        }
+
+        // --------------------------------------------------------------------------------------------
+        private void Escalate()
+        {
+            transform.position = Vector3.MoveTowards(transform.position, _escalator.TargetPosition,
+                ESCALATOR_SPEED * Time.deltaTime);
+
+            if(transform.position == _escalator.TargetPosition)
+            {
+                _escalator.Exit();
+                _escalator = null;
+                SwitchState(State.Run);
             }
         }
 

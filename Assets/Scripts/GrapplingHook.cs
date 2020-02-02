@@ -34,7 +34,7 @@ namespace GGJ20
         [SerializeField] private float _backwardDelay = .3f;
         [SerializeField] private float _backwardSpeed = 5f;
         [Space]
-        [SerializeField] private float _grabRadius;
+        [SerializeField] private float _grabRadius = .5f;
         [SerializeField] private LayerMask _grabMask;
 
         private State _state = State.Idle;
@@ -43,15 +43,23 @@ namespace GGJ20
         private float _currentSpeed;
 
         private Delay _forwardTimer;
+        private AudioSource _extentSource;
         private Action _onFinish;
+
+
 
         // --- Properties -------------------------------------------------------------------------------------------------
         public Transform Head => _head;
-        public BuildingBlock GrabbedBlock { get; set; }
-        public Players Player { get; set; }
+        public BuildingBlock GrabbedBlock { get; private set; }
+        public TechnoLizard Lizard { get; private set; }
+
+        public Vector3 HeadCenter => _head.position + .5f * _head.up;
+
         // --- Unity Functions --------------------------------------------------------------------------------------------
         private void Awake()
         {
+            Lizard = GetComponentInParent<TechnoLizard>();
+
             _forwardTimer = new Delay(0f);
 
             GeneratePieces();
@@ -78,9 +86,16 @@ namespace GGJ20
         {
             _currentSpeed = 0f;
             _forwardTimer.ChangeDuration(_forwardDuration.Lerp(chargeT));
+            _extentSource = SoundManager.Play(SFX.Grappling_Return, transform.position);
 
             _state = State.Forward;
             _onFinish = onFinish;
+            //_onFinish += _extentSource.Stop;
+        }
+
+        public void ReleaseBlock()
+        {
+            GrabbedBlock = null;
         }
 
         // --- Protected/Private Methods ----------------------------------------------------------------------------------
@@ -99,50 +114,76 @@ namespace GGJ20
         }
 
         // --------------------------------------------------------------------------------------------
-
         private void Extend()
         {
             ChangeExtension(_maxLength, 1, _forwardAcceleration, _forwardSpeed);
             UpdateVisibility();
 
             Collider2D col = CheckCollision();
-            if(col != null)
-            {
-                DelayedRetract();
-                Debug.Log($"{Logger.GetPre(this)} Hit {col.name}");
-                Grabable grab = col.GetComponent<Grabable>();
-                if(grab != null)
-                {
-                    //grab.Grab(_head);
-                    grab.Grab(this);
-                    //if(grab is BuildingBlock block)
-                    //    GrabbedBlock = block;
-                }
-
-            }
+            TryGrab(col);
 
             if(_extension == _maxLength || _forwardTimer.HasElapsed)
             {
                 DelayedRetract();
             }
         }
+
         private void DelayedRetract()
         {
             _currentSpeed = 0f;
             _state = State.Idle;
+            _extentSource.Stop();
+
             CoroutineRunner.ExecuteDelayed(_backwardDelay, () =>
             {
                 _state = State.Backward;
+                _extentSource = SoundManager.Play(SFX.Grappling_Return, transform.position);                
             });
         }
+
+        // --------------------------------------------------------------------------------------------
         private Collider2D CheckCollision()
         {
-            Collider2D[] colls = Physics2D.OverlapCircleAll(_head.transform.position, _grabRadius, _grabMask);
+            Debug.DrawLine(HeadCenter + _head.transform.up * _grabRadius,
+                HeadCenter - _head.transform.up * _grabRadius, Color.green,
+                Time.deltaTime);
+            Debug.DrawLine(HeadCenter + _head.transform.right * _grabRadius,
+                HeadCenter - _head.transform.right * _grabRadius, Color.red,
+                Time.deltaTime);
 
-            if(colls.Length != 0)
-                return colls[0];
-            return null;
+            return Physics2D.OverlapCircle(HeadCenter, _grabRadius, _grabMask);
         }
+
+        private void TryGrab(Collider2D col)
+        {
+            if(col == null)
+                return;
+
+            Debug.Log($"{Logger.GetPre(this)} Hit {col.name}");
+
+            DelayedRetract();
+
+            Grabable grab = col.GetComponent<Grabable>();
+            if(grab == null)
+                return;
+
+            if(grab is BuildingBlock block)
+            {
+                if(block.Stack != null)
+                    return;
+
+                if(block.Hook != null & block.Hook != this)
+                {
+                    block.Hook.ReleaseBlock();
+                }
+
+                GrabbedBlock = block;
+            }
+
+            grab.OnGrab(this);
+        }
+
+        // --------------------------------------------------------------------------------------------
         private void Retract()
         {
             ChangeExtension(0f, -1, _forwardAcceleration, _backwardSpeed);
@@ -151,6 +192,14 @@ namespace GGJ20
             if(_extension == 0f)
             {
                 _state = State.Idle;
+                _extentSource.Stop();
+
+                if(GrabbedBlock != null)
+                {
+                    Lizard.Stack.ReceiveBlock(GrabbedBlock);
+                    GrabbedBlock = null;
+                }
+
                 _onFinish?.Invoke();
             }
         }

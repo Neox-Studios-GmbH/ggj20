@@ -26,23 +26,42 @@ namespace GGJ20
         // --- Nested Classes ---------------------------------------------------------------------------------------------
 
         // --- Fields -----------------------------------------------------------------------------------------------------
+        [Header("Building Block")]
         [SerializeField] private BuildingBlockHeight _blockHeight;
         [SerializeField] private BlockType _blockType;
         [SerializeField] private SpriteRenderer _stairSprite;
         [SerializeField] private SpriteRenderer _mainSprite;
+        [SerializeField] private FloatRange _rotationRange = new FloatRange(-30f, 30f);
+
+        private float _rotationSpeed;
+
         // --- Properties -------------------------------------------------------------------------------------------------
-        public float BlockUpperBounds => transform.position.y + _collider.bounds.size.y;
-        public float BlockHeight => _collider.size.y;
-        public int Score => (int)_blockType * 5;
         public BlockType BType => _blockType;
-        // --- Unity Functions --------------------------------------------------------------------------------------------
-        protected override void Awake()
+        public Bounds Bounds => _collider.bounds;
+        public float BlockHeight => _collider.bounds.size.y;
+        public int Score => (int)_blockType * 5;
+
+        public GrapplingHook Hook { get; private set; }
+        public PlayerStack Stack { get; set; }
+
+        // --- Unity Functions --------------------------------------------------------------------------------------------        
+        private void OnEnable()
         {
-            base.Awake();
+            transform.rotation = Randomizer.ZRotation();
+            _rotationSpeed = _rotationRange.GetRandom();
+        }
+
+        private void FixedUpdate()
+        {
+            if(_rb.bodyType == RigidbodyType2D.Dynamic)
+            {
+                //transform.Rotate(_collider.bounds.center, _rotationSpeed * Time.deltaTime);
+                transform.RotateAround(_collider.bounds.center, Vector3.forward, _rotationSpeed * Time.fixedDeltaTime);
+            }
         }
 
         // --- Public/Internal Methods ------------------------------------------------------------------------------------
-        public void LoadData(Transform position)
+        public void LoadData(Transform spawner)
         {
             BuildingBlockData data = GetRandomBlockData();
             if(data == null)
@@ -50,15 +69,30 @@ namespace GGJ20
                 Debug.Log($"Theres no data!");
                 return;
             }
-            transform.position = position.position;
-            Debug.Log($"Loading Data {data.BlockColor} {data._SpriteOrientation}");
+
+            transform.position = spawner.position;
+
+            //Debug.Log($"Loading Data {data.BlockColor} {data.Orientation}");
             _mainSprite.color = data.BlockColor;
             _stairSprite.color = data.BlockColor;
 
-            _stairSprite.flipX = data._SpriteOrientation == BuildingBlockData.SpriteOrientation.Flipped;
-
-
+            // TODO: Make LemmingEscalators work with flipping
+            //_stairSprite.flipX = data.Orientation == BuildingBlockData.SpriteOrientation.Flipped;
         }
+
+        public void DisableSprites()
+        {
+            _mainSprite.enabled = _stairSprite.enabled = false;
+        }
+
+#if UNITY_EDITOR
+        private void OnMouseDown()
+        {
+            SetDefaultValues();
+            _rb.isKinematic = true;
+            GameManager.GetStack(Players.PlayerTwo).ReceiveBlock(this);
+        }
+#endif
 
         // --- Protected/Private Methods ----------------------------------------------------------------------------------
         private BuildingBlockData GetRandomBlockData()
@@ -84,30 +118,18 @@ namespace GGJ20
             return data;
         }
 
-        protected override void HandleGrab(Players player)
+        public override void OnGrab(GrapplingHook hook)
         {
-            _rb.velocity = Vector2.zero;
-            _rb.isKinematic = true;
+            base.OnGrab(hook);
 
-            GameManager.PlayerStackForPlayer(player).ReceiveBlock(this);
+            transform.SetParent(hook.Head);            
+            transform.position = hook.HeadCenter - .5f * transform.up * BlockHeight;
 
-        }
-        protected override void HandleGrab(GrapplingHook hook)
-        {
-            base.HandleGrab(hook);
-            _isGrabbed = true;
-            SetDefaultValues();
-            _rb.isKinematic = true;
-            transform.position = hook.Head.transform.position;
-            transform.SetParent(hook.Head.transform);
-            hook.GrabbedBlock = this;
-
+            SoundManager.Play(BType == BlockType.Wood ? SFX.Grab_Block_Light
+                : BType == BlockType.Rock ? SFX.Grab_Block_Normal
+                : SFX.Grab_Block_Hard, transform.position);
         }
 
-        protected override void HandleGrab()
-        {
-
-        }
         // --------------------------------------------------------------------------------------------
     }
 
