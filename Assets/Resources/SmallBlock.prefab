@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 17256109322979315}
   - component: {fileID: 8665077565110896952}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Stairs
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -70,7 +70,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: -1826070944318814682, guid: 558bebb450783ed4580d6c87482fb629,
+  m_Sprite: {fileID: -5053840698237250497, guid: 558bebb450783ed4580d6c87482fb629,
     type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -95,7 +95,7 @@ GameObject:
   - component: {fileID: 6228742420067093990}
   - component: {fileID: 110769594947438606}
   - component: {fileID: 5143493183754338427}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: SmallBlock
   m_TagString: Untagged
   m_Icon: {fileID: 0}

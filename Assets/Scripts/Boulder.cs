@@ -30,6 +30,11 @@ namespace GGJ20
             Debug.Log($"{Logger.GetPre(this)} You suck {player}");
         }
 
+        protected override void HandleGrab()
+        {
+
+        }
+        
         // --- Protected/Private Methods ----------------------------------------------------------------------------------
 
         // --------------------------------------------------------------------------------------------

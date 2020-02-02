@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 9050686935107330124}
   - component: {fileID: 9050686935107330125}
   - component: {fileID: 9050686935107330114}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: LavaChunk
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -146,4 +146,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _type: 4
   _isGrabbed: 0
-  _fallSpeed: 0.209
+  _fallSpeed:
+    _min: 0.125
+    _max: 0.65
+  _explosionRange:
+    _min: 2
+    _max: 8

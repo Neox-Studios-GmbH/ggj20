@@ -92,6 +92,22 @@ namespace GGJ20
             GameManager.PlayerStackForPlayer(player).ReceiveBlock(this);
 
         }
+        protected override void HandleGrab(GrapplingHook hook)
+        {
+            base.HandleGrab(hook);
+            _isGrabbed = true;
+            SetDefaultValues();
+            _rb.isKinematic = true;
+            transform.position = hook.Head.transform.position;
+            transform.SetParent(hook.Head.transform);
+            hook.GrabbedBlock = this;
+
+        }
+
+        protected override void HandleGrab()
+        {
+
+        }
         // --------------------------------------------------------------------------------------------
     }
 

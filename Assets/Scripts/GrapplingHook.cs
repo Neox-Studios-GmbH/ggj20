@@ -19,7 +19,6 @@ namespace GGJ20
         // --- Nested Classes ---------------------------------------------------------------------------------------------
 
         // --- Fields -----------------------------------------------------------------------------------------------------
-        [SerializeField] private float _targetRange;
         [Header("Generation")]
         [SerializeField, Min(0f)] private float _maxLength = 10f;
         [SerializeField] private SpriteRenderer _firstPiece;
@@ -34,6 +33,9 @@ namespace GGJ20
         [SerializeField] private float _forwardAcceleration = 200f;
         [SerializeField] private float _backwardDelay = .3f;
         [SerializeField] private float _backwardSpeed = 5f;
+        [Space]
+        [SerializeField] private float _grabRadius;
+        [SerializeField] private LayerMask _grabMask;
 
         private State _state = State.Idle;
         private List<SpriteRenderer> _pieces;
@@ -44,6 +46,7 @@ namespace GGJ20
         private Action _onFinish;
 
         // --- Properties -------------------------------------------------------------------------------------------------
+        public Transform Head => _head;
         public BuildingBlock GrabbedBlock { get; set; }
         public Players Player { get; set; }
         // --- Unity Functions --------------------------------------------------------------------------------------------
@@ -105,19 +108,17 @@ namespace GGJ20
             Collider2D col = CheckCollision();
             if(col != null)
             {
-                Grabable graber = col.GetComponent<Grabable>();
-                if(graber != null)
+                DelayedRetract();
+                Debug.Log($"{Logger.GetPre(this)} Hit {col.name}");
+                Grabable grab = col.GetComponent<Grabable>();
+                if(grab != null)
                 {
-                    DelayedRetract();
-                    Debug.Log($"{Logger.GetPre(this)} Hit {graber.name}");
-
-                    if(graber is BuildingBlock grab)
-                    {
-                        DelayedRetract();
-                        GrabbedBlock = grab;
-                        grab.Grab(_head);
-                    }
+                    //grab.Grab(_head);
+                    grab.Grab(this);
+                    //if(grab is BuildingBlock block)
+                    //    GrabbedBlock = block;
                 }
+
             }
 
             if(_extension == _maxLength || _forwardTimer.HasElapsed)
@@ -136,7 +137,7 @@ namespace GGJ20
         }
         private Collider2D CheckCollision()
         {
-            Collider2D[] colls = Physics2D.OverlapCircleAll(_head.transform.position, _targetRange);
+            Collider2D[] colls = Physics2D.OverlapCircleAll(_head.transform.position, _grabRadius, _grabMask);
 
             if(colls.Length != 0)
                 return colls[0];

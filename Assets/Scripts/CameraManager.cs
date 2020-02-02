@@ -30,7 +30,7 @@ namespace GGJ20
         [SerializeField, Range(0.01f, 0.2f)] private float _sigma = 0.1f;
         [SerializeField] private List<ScreenShakeOptions> _options;
 
-        private int _currentMaxHeight = 0;
+        private float _currentMaxHeight = 0;
         private float _shakeCooldown = 0.05f;
 
         // --- Properties -------------------------------------------------------------------------------------------------

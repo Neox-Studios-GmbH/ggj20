@@ -45,7 +45,7 @@ namespace GGJ20
         // --- Unity Functions --------------------------------------------------------------------------------------------
         private void Awake()
         {
-            _grapplingDelay = new Delay(_grappleCancelCooldown);
+            _grapplingDelay = new Delay(_grappleCancelCooldown);            
         }
 
         private void Update()

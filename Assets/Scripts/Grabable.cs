@@ -8,7 +8,7 @@ using UnityEngine.EventSystems;
 namespace GGJ20
 {
     [RequireComponent(typeof(Rigidbody2D), typeof(SpriteRenderer), typeof(BoxCollider2D))]
-    public abstract class Grabable : FactoryItem, IPointerEnterHandler, IPointerExitHandler
+    public abstract class Grabable : FactoryItem
     {
         // --- Enums ------------------------------------------------------------------------------------------------------
 
@@ -16,7 +16,7 @@ namespace GGJ20
 
         // --- Fields -----------------------------------------------------------------------------------------------------
         [Header("Testing")]
-        [SerializeField] private bool _isGrabbed;
+        [SerializeField] protected bool _isGrabbed;
         //[SerializeField, Range(0.1f, 1.5f)] private float _fallSpeed;
         [SerializeField] private FloatRange _fallSpeed = new FloatRange(0.125f, .65f);
         [Space]
@@ -37,15 +37,30 @@ namespace GGJ20
         }
         private void Update()
         {
-            if(!_isHovering)
-                return;
-            if(Input.GetKeyDown(KeyCode.Mouse0))
-                Grab(Players.PlayerOne);
-            if(Input.GetKeyDown(KeyCode.Mouse1))
-                Grab(Players.PlayerTwo);
+
+
         }
         // --- Public/Internal Methods ------------------------------------------------------------------------------------
-        public void Grab(Players player)
+        //public void Grab(Transform other)
+        //{
+        //    if(_isGrabbed)
+        //    {
+        //        Debug.Log($"Is Already grabbed!");
+        //        return;
+        //    }
+        //    _isGrabbed = true;
+        //    SetDefaultValues();
+        //    _rb.isKinematic = true;
+        //    transform.position = other.position;
+        //    transform.SetParent(other);
+        //    HandleGrab();
+        //}
+        public void Grab(GrapplingHook hook)
+        {
+            HandleGrab(hook);
+        }
+        // --- Protected/Private Methods ----------------------------------------------------------------------------------   
+        private void Grab(Players player)
         {
             if(_isGrabbed)
             {
@@ -55,24 +70,15 @@ namespace GGJ20
             _isGrabbed = true;
             HandleGrab(player);
         }
-        public void Grab(Transform other)
-        {
-            if(_isGrabbed)
-            {
-                Debug.Log($"Is Already grabbed!");
-                return;
-            }
-            _isGrabbed = true;
-            SetDefaultValues();
-            _rb.isKinematic = true;
-            transform.position = other.position;
-            transform.SetParent(other);
-            HandleGrab();
-        }
-
-        // --- Protected/Private Methods ----------------------------------------------------------------------------------   
         protected abstract void HandleGrab(Players player);
-        protected abstract void HandleGrab();
+        protected virtual void HandleGrab(GrapplingHook hook)
+        {
+
+        }
+        protected virtual void HandleGrab()
+        {
+            Debug.Log($"Do grab stuff");
+        }
         private void OnTriggerEnter2D(Collider2D collision)
         {
             if(collision.name == "Bounds")
@@ -80,7 +86,7 @@ namespace GGJ20
                 Return();
             }
         }
-        private void SetDefaultValues()
+        protected void SetDefaultValues()
         {    //Debug.Log($"Returning to Spawn");
             _rb.velocity = Vector2.zero;
             _rb.rotation = 0;
@@ -92,15 +98,6 @@ namespace GGJ20
             MegaFactory.Instance.ReturnFactoryItem(this);
         }
 
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            _isHovering = false;
-        }
-
-        public void OnPointerEnter(PointerEventData eventData)
-        {
-            _isHovering = true;
-        }
 
         // --------------------------------------------------------------------------------------------
     }
