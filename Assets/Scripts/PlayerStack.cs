@@ -35,27 +35,14 @@ namespace GGJ20
         {
             get
             {
-                if(Blocks.Count == 0)
-                    return transform.position;
-
-                BuildingBlock topBlock = Blocks.Peek();
-                return topBlock.transform.position + Vector3.up * topBlock.BlockHeight;
+                BuildingBlock top = GetTopBlock();
+                return top != null
+                    ? top.transform.position + Vector3.up * top.BlockHeight
+                    : transform.position;
             }
         }
 
-        public float TopBlockWidth
-        {
-            get
-            {
-                if(Blocks.Count == 0)
-                    return 1f;
-
-                BuildingBlock topBlock = Blocks.Peek();
-                return topBlock.Bounds.extents.x;
-            }
-        }
-
-
+        public float TopBlockWidth => GetTopBlock()?.Bounds.extents.x ?? 1f;
 
         // --- Unity Functions --------------------------------------------------------------------------------------------
         private void Awake()
@@ -88,6 +75,20 @@ namespace GGJ20
             CoroutineRunner.ExecuteDelayed(_lemmingSpawnDelay.GetRandom(), SpawnLemmings);
         }
 
+        private BuildingBlock GetTopBlock()
+        {
+            while(Blocks.Count > 0)
+            {
+                BuildingBlock b = Blocks.Peek();
+                if(b != null)
+                    return b;
+
+                Blocks.Pop();
+            }
+
+            return null;
+        }
+
         // --- Public/Internal Methods ------------------------------------------------------------------------------------
         public void ReceiveBlock(BuildingBlock block)
         {
@@ -116,6 +117,12 @@ namespace GGJ20
 
             if(block.BType == BuildingBlock.BlockType.Wood)
                 HitByChunk();
+        }
+
+        public void PerishLemmings()
+        {
+            foreach(Lemming l in _lemmings)
+                l.SwitchState(Lemming.State.Suicide);
         }
 
         // --- Protected/Private Methods ----------------------------------------------------------------------------------

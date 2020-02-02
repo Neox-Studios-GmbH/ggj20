@@ -172,7 +172,7 @@ namespace GGJ20
                 if(block.Stack != null)
                     return;
 
-                if(block.Hook != null & block.Hook != this)
+                if(block.Hook != null && block.Hook != this)
                 {
                     block.Hook.ReleaseBlock();
                 }

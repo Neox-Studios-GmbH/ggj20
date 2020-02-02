@@ -27,7 +27,9 @@ namespace GGJ20
         public override void OnGrab(GrapplingHook hook)
         {
             SoundManager.Play(SFX.Boulder_Crumble, transform.position);
-            // TODO: player animation or spawn particles
+
+            ParticleSystem psSystem = Instantiate(Resources.Load<ParticleSystem>("Particles/LavaChunkExplosion"));
+            psSystem.transform.position = this.transform.position;
 
             Return();
         }

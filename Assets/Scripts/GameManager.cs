@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.SceneManagement;
 
 namespace GGJ20
 {
@@ -26,6 +27,7 @@ namespace GGJ20
         // --- Fields -----------------------------------------------------------------------------------------------------
         [SerializeField] private PlayerStack _stackPlayerOne;
         [SerializeField] private PlayerStack _stackPlayerTwo;
+        [SerializeField] private float _loserForce = 10f;
 
         private PlayerScores _score;
         public Action<PlayerStack> onStackChanged;
@@ -42,7 +44,15 @@ namespace GGJ20
             }
 
             Instance = this;
-            DontDestroyOnLoad(Instance);
+            //DontDestroyOnLoad(Instance);
+        }
+
+        private void Update()
+        {
+            if(Input.GetKeyDown(KeyCode.F5))
+            {
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            }
         }
 
         // --- Public/Internal Methods ------------------------------------------------------------------------------------
@@ -75,7 +85,7 @@ namespace GGJ20
         // --------------------------------------------------------------------------------------------
         public static void OnPlayerWon(Players player)
         {
-            Instance._OnPlayerWon(player);            
+            Instance._OnPlayerWon(player);
         }
 
         public static void OnDraw()
@@ -139,11 +149,17 @@ namespace GGJ20
             PlayerStack loserStack = player == Players.PlayerOne
                 ? _stackPlayerTwo : _stackPlayerOne;
 
+            Vector2 forceDir = new Vector2(-.5f * Mathf.Sign(loserStack.transform.position.x), 1f).normalized;
+
             Rigidbody2D stackRb = loserStack.gameObject.AddComponent<Rigidbody2D>();
-            stackRb.AddTorque(10f, ForceMode2D.Impulse);
+            stackRb.AddTorque(_loserForce, ForceMode2D.Impulse);
+            stackRb.AddForce(forceDir * _loserForce, ForceMode2D.Impulse);
 
             Rigidbody2D lizardRb = loserStack.Lizard.gameObject.AddComponent<Rigidbody2D>();
-            lizardRb.AddTorque(10f, ForceMode2D.Impulse);
+            lizardRb.AddTorque(_loserForce, ForceMode2D.Impulse);
+            lizardRb.AddForce(forceDir * _loserForce, ForceMode2D.Impulse);
+
+            loserStack.PerishLemmings();
 
             GameOver = true;
         }

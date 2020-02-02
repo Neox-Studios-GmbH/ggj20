@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using UnityEngine.InputSystem;
 
 namespace GGJ20
 {
@@ -21,7 +20,7 @@ namespace GGJ20
 
         // --- Fields -----------------------------------------------------------------------------------------------------
         [SerializeField] private PlayerStack _playerStack = null;
-        [SerializeField] private GrapplingHook _hook;        
+        [SerializeField] private GrapplingHook _hook;
         [Space]
         [SerializeField] private Animator _bodyAnimator = null;
         [SerializeField, Min(0f)] private float _movementSpeed = 2f;
@@ -42,7 +41,14 @@ namespace GGJ20
 
         // --- Properties -------------------------------------------------------------------------------------------------
         public State CurrentState { get; private set; } = State.Rotating;
-        public PlayerStack Stack => _playerStack;        
+        public PlayerStack Stack => _playerStack;
+        public int PlayerIndex => (int)_playerStack.Player + 1;
+
+        private string InputHorizontal => $"Player{PlayerIndex}_Horizontal";
+        private string InputVertical => $"Player{PlayerIndex}_Vertical";
+        private string InputLeft => $"Player{PlayerIndex}_Left";
+        private string InputRight => $"Player{PlayerIndex}_Right";
+        private string InputGrapple => $"Player{PlayerIndex}_Grapple";
 
         // --- Unity Functions --------------------------------------------------------------------------------------------
         private void Start()
@@ -50,7 +56,7 @@ namespace GGJ20
             _grapplingDelay = new Delay(_grappleCancelCooldown);
 
             _stackOffset = this.transform.position.y - Stack.NextBlockPosition.y;
-    }
+        }
 
         private void Update()
         {
@@ -60,6 +66,7 @@ namespace GGJ20
                 case State.Charging:
                     UpdateRotation();
                     UpdateHeight();
+                    OnGrappleInput();
                     break;
 
                 case State.Firing:
@@ -68,27 +75,18 @@ namespace GGJ20
         }
 
         // --- Public/Internal Methods ------------------------------------------------------------------------------------
-        public void OnAimInput(InputAction.CallbackContext context)
+        public void OnGrappleInput()
         {
-            Vector2 dir = context.ReadValue<Vector2>();
-            if(dir == Vector2.zero)
+            if(!_grapplingDelay.HasElapsed)
                 return;
 
-            _targetAngle = Mathf.Clamp(Vector2.SignedAngle(Vector2.up, dir), -_maxAngle, _maxAngle);
-        }
-
-        public void OnGrappleInput(InputAction.CallbackContext context)
-        {
-            if(CurrentState == State.Firing || !_grapplingDelay.HasElapsed)
-                return;
-
-            bool isPress = context.ReadValue<float>() == 1f;
+            bool isPress = Input.GetButtonDown(InputGrapple);
             if(isPress && CurrentState == State.Rotating)
             {
                 _chargeStartTime = Time.time;
                 CurrentState = State.Charging;
             }
-            else if(!isPress && CurrentState == State.Charging)
+            else if(CurrentState == State.Charging && Input.GetButtonUp(InputGrapple))
             {
                 float chargeDuration = Time.time - _chargeStartTime;
                 CurrentState = State.Firing;
@@ -101,8 +99,28 @@ namespace GGJ20
         // --- Protected/Private Methods ----------------------------------------------------------------------------------
         private void UpdateRotation()
         {
-            _bodyAnimator.SetBool(ANIM_BODY_IS_WALKING, _angle != _targetAngle);
+            float xInput = 0f;
+            if(Input.GetButton(InputLeft))
+                xInput += 1f;
+            if(Input.GetButton(InputRight))
+                xInput -= 1f;
 
+            if(xInput != 0f)
+            {
+                _targetAngle = xInput * _maxAngle;
+            }
+            else
+            {
+                Vector2 axis = new Vector2(Input.GetAxis(InputHorizontal), Input.GetAxis(InputVertical));
+                if(axis == Vector2.zero)
+                    return;
+
+                axis.Normalize();
+
+                _targetAngle = Mathf.Clamp(Vector2.SignedAngle(Vector2.up, axis), -_maxAngle, _maxAngle);
+            }
+
+            _bodyAnimator.SetBool(ANIM_BODY_IS_WALKING, _angle != _targetAngle);
             if(_angle == _targetAngle)
                 return;
 

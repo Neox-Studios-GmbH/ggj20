@@ -122,6 +122,8 @@ namespace GGJ20
         {
             base.OnGrab(hook);
 
+            this.Hook = hook;
+
             transform.SetParent(hook.Head);            
             transform.position = hook.HeadCenter - .5f * transform.up * BlockHeight;
 

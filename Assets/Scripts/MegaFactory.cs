@@ -43,11 +43,8 @@ namespace GGJ20
                 Destroy(this);
             }
             Instance = this;
-            //DontDestroyOnLoad(Instance);
-        }
 
-        private void Start()
-        {
+            //DontDestroyOnLoad(Instance);
             InitFactoyItems();
         }
 

@@ -88,15 +88,12 @@ namespace GGJ20
             // Better safe than sorry
             if(transform.position.y < -10f)
             {
-                MegaFactory.Instance.ReturnFactoryItem(this);
+                ResetAndReturn();
             }
         }
 
         // --- Public/Internal Methods ------------------------------------------------------------------------------------        
-
-
-        // --- Protected/Private Methods ----------------------------------------------------------------------------------
-        private void SwitchState(State state)
+        public void SwitchState(State state)
         {
             _state = state;
             switch(_state)
@@ -115,6 +112,9 @@ namespace GGJ20
                     break;
             }
         }
+
+
+        // --- Protected/Private Methods ----------------------------------------------------------------------------------
 
         private void CheckForEdges()
         {
@@ -165,7 +165,7 @@ namespace GGJ20
                 ForceMode2D.Impulse);
 
             SoundManager.PlayRandomAhh(transform.position);
-            CoroutineRunner.ExecuteDelayed(2f, () => MegaFactory.Instance.ReturnFactoryItem(this));
+            CoroutineRunner.ExecuteDelayed(2f, ResetAndReturn);
         }
 
         private void Flip()
@@ -193,6 +193,16 @@ namespace GGJ20
                     SoundManager.PlayRandomCheer(transform.position);
                 }
             }
+        }
+        
+        // --------------------------------------------------------------------------------------------
+        private void ResetAndReturn()
+        {
+            _rigidbody.bodyType = RigidbodyType2D.Kinematic;
+            _rigidbody.velocity = Vector3.zero;
+            _rigidbody.angularVelocity = 0f;
+
+            MegaFactory.Instance.ReturnFactoryItem(this);
         }
 
         // --------------------------------------------------------------------------------------------

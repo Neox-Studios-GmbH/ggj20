@@ -26,6 +26,7 @@ namespace GGJ20
         private Vector3 _startPosition, _targetPosition;
         private float _flingT;
         private PlayerStack _targetStack;
+        private ParticleSystem _trail;
 
         // --- Properties -------------------------------------------------------------------------------------------------
 
@@ -76,6 +77,8 @@ namespace GGJ20
             BuildingBlock block = _targetStack.Blocks.Peek();
             _targetPosition = block.transform.position + Vector3.up * block.BlockHeight;
 
+            _trail = Instantiate(Resources.Load<ParticleSystem>("Particles/LavaChunkTrail"), this.transform, false);
+
             _flingT = 0f;
             _state = State.Flung;
         }
@@ -99,6 +102,8 @@ namespace GGJ20
         private void HitStack()
         {
             _targetStack.HitByChunk();
+
+            Destroy(_trail.gameObject);
 
             SoundManager.Play(SFX.LavaChunk_Explosion, transform.position);
             ParticleSystem psSystem = Instantiate(Resources.Load<ParticleSystem>("Particles/LavaChunkExplosion"));

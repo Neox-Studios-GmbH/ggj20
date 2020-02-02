@@ -72,7 +72,8 @@ SpriteRenderer:
   m_SortingLayerID: -787635581
   m_SortingLayer: 1
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: d4d3d699fc30330439828d46f883b07a, type: 3}
+  m_Sprite: {fileID: 2184433382337298893, guid: 8712be7f46d4ad749a62cff901ef58c7,
+    type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -112,7 +113,7 @@ MonoBehaviour:
   - {x: -0.31531715, y: 0.6102972, z: 0}
   m_ShapePathHash: 1209270933
   m_Mesh: {fileID: 0}
-  m_InstanceId: -1648
+  m_InstanceId: 84026
 --- !u!1 &5203700499429887302
 GameObject:
   m_ObjectHideFlags: 0
@@ -139,7 +140,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5203700499429887302}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.518, z: 0}
+  m_LocalPosition: {x: 0, y: -0.512, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 6646640659687113153}
@@ -184,12 +185,13 @@ SpriteRenderer:
   m_SortingLayerID: -787635581
   m_SortingLayer: 1
   m_SortingOrder: 0
-  m_Sprite: {fileID: 602914043846990157, guid: dd2b396586da27b448549f0b4a0e211e, type: 3}
+  m_Sprite: {fileID: -4777730850013582728, guid: dd2b396586da27b448549f0b4a0e211e,
+    type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.2725, y: 0.49625}
+  m_Size: {x: 2.18, y: 3.97}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -220,7 +222,7 @@ MonoBehaviour:
   - {x: -0.14352131, y: -0.0049943924, z: 0}
   m_ShapePathHash: -2016594027
   m_Mesh: {fileID: 0}
-  m_InstanceId: -1644
+  m_InstanceId: 84022
 --- !u!1 &5326881216188610840
 GameObject:
   m_ObjectHideFlags: 0
@@ -390,7 +392,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6818040519445687395}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.10000038, y: 2.044, z: 0}
+  m_LocalPosition: {x: -0.10000038, y: 2.06, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 6646640659687113153}
@@ -411,7 +413,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _maxLength: 15
   _firstPiece: {fileID: 3784740223453811269}
-  _pieceOffset: 0.451
+  _pieceOffset: 0.443
   _enableOffset: 1
   _animator: {fileID: 0}
   _head: {fileID: 6646640659687113153}
@@ -804,7 +806,6 @@ GameObject:
   m_Component:
   - component: {fileID: 8531348039566719178}
   - component: {fileID: 8531348039566719179}
-  - component: {fileID: 8531348039566719188}
   - component: {fileID: 1452750790}
   m_Layer: 0
   m_Name: TechnoLizard
@@ -848,67 +849,6 @@ MonoBehaviour:
   _maxAngle: 120
   _maxGrapplingChargeDuration: 0.5
   _grappleCancelCooldown: 0.4
---- !u!114 &8531348039566719188
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8531348039566719189}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Actions: {fileID: -944628639613478452, guid: a28b4c21e1721df43bebd148986f388a,
-    type: 3}
-  m_NotificationBehavior: 2
-  m_UIInputModule: {fileID: 0}
-  m_DeviceLostEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_DeviceRegainedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ControlsChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ActionEvents:
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 8531348039566719179}
-        m_MethodName: OnAimInput
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 93d11954-17ce-4036-b6e6-ae98d389c9bf
-    m_ActionName: Player_Actions/Aim
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 8531348039566719179}
-        m_MethodName: OnGrappleInput
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 64219509-6350-4dcf-8db4-9a29ea264f94
-    m_ActionName: Player_Actions/Grapple
-  m_NeverAutoSwitchControlSchemes: 0
-  m_DefaultControlScheme: 
-  m_DefaultActionMap: Player_Actions
-  m_SplitScreenIndex: -1
-  m_Camera: {fileID: 0}
 --- !u!114 &1452750790
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1119,4 +1059,4 @@ MonoBehaviour:
   - {x: -1.4375906, y: -0.9355087, z: 0}
   m_ShapePathHash: -1565643239
   m_Mesh: {fileID: 0}
-  m_InstanceId: -1646
+  m_InstanceId: 84024

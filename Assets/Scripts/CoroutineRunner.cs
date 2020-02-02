@@ -24,7 +24,7 @@ namespace GGJ20
             }
 
             Instance = this;
-            DontDestroyOnLoad(this.gameObject);
+            //DontDestroyOnLoad(this.gameObject);
         }
 
         // --- Public/Internal Methods ------------------------------------------------------------------------------------
