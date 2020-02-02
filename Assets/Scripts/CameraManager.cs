@@ -32,7 +32,6 @@ namespace GGJ20
         [SerializeField] private List<ScreenShakeOptions> _options;
 
         private float _currentMaxHeight = 0;
-        private float _shakeCooldown = 0.05f;
 
         // --- Properties -------------------------------------------------------------------------------------------------
         private void Start()
@@ -40,7 +39,7 @@ namespace GGJ20
             AdjustCameraHeightToPlayerStack(GameManager.GetStack(Players.PlayerOne));
             AdjustCameraHeightToPlayerStack(GameManager.GetStack(Players.PlayerTwo));
 
-            GameManager.Instance.onStackChanged += AdjustCameraHeightToPlayerStack;            
+            GameManager.Instance.onStackChanged += AdjustCameraHeightToPlayerStack;
         }
 
         private void Update()
@@ -74,6 +73,7 @@ namespace GGJ20
 
             ShakeScreen(op.ShakeStrength, op.TimeLength);
         }
+
         // --- Protected/Private Methods ----------------------------------------------------------------------------------
         private void AdjustCameraHeightToPlayerStack(PlayerStack stack)
         {
@@ -87,20 +87,32 @@ namespace GGJ20
 
         private IEnumerator ShakeScreenCoroutine(Vector2 s, float t)
         {
-            float elapsed = 0f;
-            while(t < elapsed)
-            {
-                transform.position += new Vector3();
-                yield return new WaitForSeconds(_shakeCooldown);
-                transform.position += new Vector3();
-                yield return new WaitForSeconds(_shakeCooldown);
-                transform.position += new Vector3();
-                yield return new WaitForSeconds(_shakeCooldown);
-                transform.position += new Vector3();
-                yield return new WaitForSeconds(_shakeCooldown);
-                elapsed += 4 * _shakeCooldown;
-            }
+            Vector3 before = transform.position;
+            float wait = t / 8f;
+            float falloff = 0.1f;
+            float mult = 1f;
+
+            yield return Shake(new Vector2(s.x , s.y), wait, mult);
+            yield return Shake(new Vector2(-s.x, -s.y), wait, mult);
+            mult -= falloff;
+            yield return Shake(new Vector2(-s.x, -s.y), wait, mult);
+            yield return Shake(new Vector2(s.x, s.y), wait, mult);
+            mult -= falloff;
+            yield return Shake(new Vector2(-s.x, s.y), wait, mult);
+            yield return Shake(new Vector2(s.x, -s.y), wait, mult);
+            mult -= falloff;
+            yield return Shake(new Vector2(s.x, -s.y), wait, mult);
+            yield return Shake(new Vector2(-s.x, s.y), wait, mult);
+
+            transform.position = before;
         }
+
+        private IEnumerator Shake(Vector2 s, float cd, float mult)
+        {
+            transform.position += new Vector3(s.x * mult, s.y * mult, 0);
+            yield return new WaitForSeconds(cd);
+        }
+
         // --------------------------------------------------------------------------------------------
 
         // **************************************************************************************************************************************************

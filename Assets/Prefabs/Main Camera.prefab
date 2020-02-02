@@ -149,9 +149,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _yOffset: 10
-  _smoothingFactor: 1
+  _smoothingFactor: 2
   _sigma: 0.1
-  _options: []
+  _options:
+  - Strength: 2
+    TimeLength: 0.1
+    ShakeStrength: {x: 0.2, y: 0.2}
+  - Strength: 1
+    TimeLength: 0.05
+    ShakeStrength: {x: 0.1, y: 0.1}
+  - Strength: 0
+    TimeLength: 0.025
+    ShakeStrength: {x: 0.05, y: 0.05}
 --- !u!1 &6257288087981626867
 GameObject:
   m_ObjectHideFlags: 0
