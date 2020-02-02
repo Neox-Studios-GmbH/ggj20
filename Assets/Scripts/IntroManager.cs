@@ -93,13 +93,13 @@ namespace GGJ20
         }
         private void Update()
         {
-            switch (State)
+            switch(State)
             {
                 case state.Idle:
                     {
                         // Splash Display
                         SplashElapsedTime += Time.deltaTime;
-                        if (SplashElapsedTime >= SplashDelay)
+                        if(SplashElapsedTime >= SplashDelay)
                         {
                             _startText.gameObject.SetActive(!_startText.gameObject.activeSelf);
                             SplashElapsedTime = 0;
@@ -115,9 +115,9 @@ namespace GGJ20
                         int After = (int)GrassLeft.uvRect.x;
 
                         // Process input
-                        bool ButtonPressed = Input.GetKeyDown("space");
+                        bool ButtonPressed = Input.GetAxis("Player1_Grapple") > 0;
 
-                        if (ButtonPressed)
+                        if(ButtonPressed)
                         {
                             State = state.PrepareScene;
                             _startText.gameObject.SetActive(false);
@@ -137,7 +137,7 @@ namespace GGJ20
                         ScrollX(GrassLeft, SceneScrollingSpeed * 2f);
                         int After = (int)GrassLeft.uvRect.x;
 
-                        if (After > Before)
+                        if(After > Before)
                         {
                             Rect UVRect;
                             UVRect = GrassLeft.uvRect;
@@ -160,7 +160,7 @@ namespace GGJ20
                         TranslateX(GrassRight.transform, Delta);
 
                         DistanceWalked += -Delta;
-                        if (DistanceWalked > 15)
+                        if(DistanceWalked > 15)
                         {
                             Girl.position = GirlGroundPosition;
                             Girl.eulerAngles = Vector3.zero;
@@ -192,7 +192,7 @@ namespace GGJ20
                         RotateZ(GrassRight.transform, -RotSpeed);
 
                         FallTimer += Time.deltaTime;
-                        if (FallTimer > FallTime)
+                        if(FallTimer > FallTime)
                         {
                             State = state.FadeToGame;
                             StartCoroutine(FadeToAnnouncement());
@@ -212,7 +212,7 @@ namespace GGJ20
 
                 case state.Announcer:
                     {
-                        if (MessageTimer > MessageDelay)
+                        if(MessageTimer > MessageDelay)
                         {
                             MessageTimer = 0;
 
@@ -236,11 +236,11 @@ namespace GGJ20
                         Pos.x = Mathf.MoveTowards(Pos.x, Message.TargetX, MessageSpeed * Time.deltaTime);
                         T.localPosition = Pos;
 
-                        if (Pos.x == Message.TargetX)
+                        if(Pos.x == Message.TargetX)
                         {
                             ++MessageIndex;
 
-                            if (MessageIndex == Messages.Length)
+                            if(MessageIndex == Messages.Length)
                             {
                                 State = state.AnnouncerEnd;
                                 MessageTimer = 0;
@@ -259,13 +259,13 @@ namespace GGJ20
 
                 case state.AnnouncerEnd:
                     {
-                        if (Audio.isPlaying)
+                        if(Audio.isPlaying)
                         {
                             //
                         }
                         else
                         {
-                            if (MessageTimer > 1f)
+                            if(MessageTimer > 1f)
                             {
                                 StartCoroutine(FadeToGame());
                             }
@@ -287,7 +287,7 @@ namespace GGJ20
         {
             float SourceAlpha = FullscreenFade.alpha;
             float Timer = 0;
-            while (Timer < Duration)
+            while(Timer < Duration)
             {
                 FullscreenFade.alpha = Mathf.Lerp(SourceAlpha, TargetAlpha, Timer / Duration);
                 Timer += Time.deltaTime;
@@ -324,12 +324,13 @@ namespace GGJ20
             yield return LerpAlpha(1f, ScreenFadeDuration);
 
             Destroy(this.gameObject);
-            Instantiate(_gameAsset);
+            //Instantiate(_gameAsset);
+            _gameAsset.SetActive(true);
         }
 
         IEnumerator ScrollCave()
         {
-            while (true)
+            while(true)
             {
                 ScrollY(CaveImage, -CaveScrollSpeed);
                 yield return null;
@@ -362,7 +363,7 @@ namespace GGJ20
             GirlAirY = GirlGroundPosition.y + GirlStepOffset;
             GirlTimer += Time.deltaTime;
 
-            if (GirlTimer > GirlStepDelay)
+            if(GirlTimer > GirlStepDelay)
             {
                 GirlTimer -= GirlStepDelay;
 
@@ -370,14 +371,14 @@ namespace GGJ20
                 float NewRot = 0;
                 float CurrentY = Girl.position.y;
 
-                if (CurrentY == GirlGroundPosition.y)
+                if(CurrentY == GirlGroundPosition.y)
                 {
                     RotDirectionSwitch = !RotDirectionSwitch;
 
                     NewY = GirlAirY;
                     NewRot = RotDirectionSwitch ? GirlRot : -GirlRot;
                 }
-                else if (CurrentY == GirlAirY)
+                else if(CurrentY == GirlAirY)
                 {
                     NewY = GirlGroundPosition.y;
                 }
