@@ -94,10 +94,20 @@ namespace GGJ20
         }
 
         // --------------------------------------------------------------------------------------------
+        //private void OnDrawGizmos()
+        //{
+        //    Gizmos.
+        //}
         private void Extend()
         {
             ChangeExtension(_maxLength, 1, _forwardAcceleration, _forwardSpeed);
             UpdateVisibility();
+
+            Collider2D col = CheckCollision();
+            if(col != null)
+            {
+                Debug.Log($"{Logger.GetPre(this)} Hit {col.name}");
+            }
 
             if(_extension == _maxLength || _forwardTimer.HasElapsed)
             {
@@ -109,7 +119,14 @@ namespace GGJ20
                 });
             }
         }
+        private Collider2D CheckCollision()
+        {
+            Collider2D[] colls = Physics2D.OverlapCircleAll(transform.position, 2f);
 
+            if(colls.Length != 0)
+                return colls[0];
+            return null;
+        }
         private void Retract()
         {
             ChangeExtension(0f, -1, _forwardAcceleration, _backwardSpeed);
