@@ -15,23 +15,31 @@ namespace GGJ20
         // --- Fields -----------------------------------------------------------------------------------------------------
         [SerializeField] private Players _player;
         [SerializeField] private TechnoLizard _lizardBoi;
+        [SerializeField] private FloatRange _receiveDuration = new FloatRange(1, 4);
         private Stack<BuildingBlock> _blockStack;
         private float _lizardBoiDistance;
+        private Delay _delay;
+
+        public Action<PlayerStack> OnStackChanged;
         // --- Properties -------------------------------------------------------------------------------------------------
         public Stack<BuildingBlock> BlockStack => _blockStack;
         public int CombinedStackHeight => GetCombinedStackHeight();
         // --- Unity Functions --------------------------------------------------------------------------------------------
         private void Awake()
         {
+            _delay = new Delay(0f);
             _blockStack = new Stack<BuildingBlock>();
             //_lizardBoiDistance = transform.position - _lizardBoi.transform.position;
+            if(_lizardBoi == null)
+                return;
             _lizardBoiDistance = Vector2.Distance(transform.position, _lizardBoi.transform.position);
         }
 
         // --- Public/Internal Methods ------------------------------------------------------------------------------------
-        public void AddBlock(BuildingBlock block)
+        public void ReceiveBlock(BuildingBlock block)
         {
             //Debug.Log($"Adding {block.BType} with height {block.BlockUpperBounds} to stack");
+            block.transform.SetParent(null);
             PlaceBlock(block);
         }
         public void DestroyBlock(BuildingBlock block)
@@ -48,6 +56,13 @@ namespace GGJ20
         {
             if(_blockStack.Count == 0)
             {
+                _delay.ChangeDuration(_receiveDuration.GetRandom());
+                float t = Time.time;
+                while(!_delay.HasElapsed)
+                {
+                    t = _receiveDuration.GetRandom() * Time.deltaTime;
+                    block.transform.position = Vector2.Lerp(block.transform.position, transform.position, t);
+                }
                 block.transform.position = transform.position;
             }
             else
@@ -63,15 +78,11 @@ namespace GGJ20
 
             //Todo: Move LizardBoi up
             Vector2 newLizardBoiPos = new Vector2(_lizardBoi.transform.position.x, block.BlockUpperBounds + _lizardBoiDistance);
-            float t = 0;
 
-            //while(t <= 1)
-            //{
-            //    t = t + (2 * Time.deltaTime);
-            //    Debug.Log($"{Logger.GetPre(this)} {t}");
-            //    _lizardBoi.transform.position = Vector2.Lerp(_lizardBoi.transform.position, newLizardBoiPos, t * Time.deltaTime);
-            //}
             _lizardBoi.transform.position = newLizardBoiPos;
+
+            OnStackChanged?.Invoke(this);
+
             GameManager.AddPlayerScore(_player, block.Score);
         }
 

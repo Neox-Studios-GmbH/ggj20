@@ -88,8 +88,8 @@ namespace GGJ20
         {
             _rb.velocity = Vector2.zero;
             _rb.isKinematic = true;
-            Debug.Log($"Grabbing {this._blockHeight}");
-            GameManager.PlayerStackForPlayer(player).AddBlock(this);
+
+            GameManager.PlayerStackForPlayer(player).ReceiveBlock(this);
 
         }
         // --------------------------------------------------------------------------------------------

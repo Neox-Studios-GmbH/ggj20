@@ -19,6 +19,7 @@ namespace GGJ20
         // --- Nested Classes ---------------------------------------------------------------------------------------------
 
         // --- Fields -----------------------------------------------------------------------------------------------------
+        [SerializeField] private float _targetRange;
         [Header("Generation")]
         [SerializeField, Min(0f)] private float _maxLength = 10f;
         [SerializeField] private SpriteRenderer _firstPiece;
@@ -43,7 +44,7 @@ namespace GGJ20
         private Action _onFinish;
 
         // --- Properties -------------------------------------------------------------------------------------------------
-
+        public BuildingBlock GrabbedBlock { get; set; }
         // --- Unity Functions --------------------------------------------------------------------------------------------
         private void Awake()
         {
@@ -94,10 +95,7 @@ namespace GGJ20
         }
 
         // --------------------------------------------------------------------------------------------
-        //private void OnDrawGizmos()
-        //{
-        //    Gizmos.
-        //}
+
         private void Extend()
         {
             ChangeExtension(_maxLength, 1, _forwardAcceleration, _forwardSpeed);
@@ -106,22 +104,33 @@ namespace GGJ20
             Collider2D col = CheckCollision();
             if(col != null)
             {
-                Debug.Log($"{Logger.GetPre(this)} Hit {col.name}");
+                BuildingBlock grab = col.GetComponent<BuildingBlock>();
+                if(grab != null)
+                {
+                    Debug.Log($"{Logger.GetPre(this)} Hit {grab.name}");
+                    DelayedRetract();
+                    GrabbedBlock = grab;
+                    grab.Grab(_head);
+                }
             }
 
             if(_extension == _maxLength || _forwardTimer.HasElapsed)
             {
-                _currentSpeed = 0f;
-                _state = State.Idle;
-                CoroutineRunner.ExecuteDelayed(_backwardDelay, () =>
-                {
-                    _state = State.Backward;
-                });
+                DelayedRetract();
             }
+        }
+        private void DelayedRetract()
+        {
+            _currentSpeed = 0f;
+            _state = State.Idle;
+            CoroutineRunner.ExecuteDelayed(_backwardDelay, () =>
+            {
+                _state = State.Backward;
+            });
         }
         private Collider2D CheckCollision()
         {
-            Collider2D[] colls = Physics2D.OverlapCircleAll(transform.position, 2f);
+            Collider2D[] colls = Physics2D.OverlapCircleAll(_head.transform.position, _targetRange);
 
             if(colls.Length != 0)
                 return colls[0];

@@ -20,7 +20,7 @@ namespace GGJ20
         // --- Nested Classes ---------------------------------------------------------------------------------------------
 
         // --- Fields -----------------------------------------------------------------------------------------------------
-        [SerializeField] private Transform _playerStack = null;
+        [SerializeField] private PlayerStack _playerStack = null;
         [SerializeField] private GrapplingHook _hook;
         [SerializeField] private float _stackOffset = 5f;
         [Space]
@@ -94,7 +94,13 @@ namespace GGJ20
                 {
                     Debug.Log("Gotcha!");
                     CurrentState = State.Rotating;
-                });                
+                    if(_hook.GrabbedBlock != null)
+                    {
+                        _playerStack.ReceiveBlock(_hook.GrabbedBlock);
+                        _hook.GrabbedBlock = null;
+                    }
+                    //_playerStack.ReceiveBlock(_hook.cu)
+                });
             }
         }
 
