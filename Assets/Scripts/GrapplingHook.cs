@@ -45,6 +45,7 @@ namespace GGJ20
 
         // --- Properties -------------------------------------------------------------------------------------------------
         public BuildingBlock GrabbedBlock { get; set; }
+        public Players Player { get; set; }
         // --- Unity Functions --------------------------------------------------------------------------------------------
         private void Awake()
         {
@@ -104,13 +105,18 @@ namespace GGJ20
             Collider2D col = CheckCollision();
             if(col != null)
             {
-                BuildingBlock grab = col.GetComponent<BuildingBlock>();
-                if(grab != null)
+                Grabable graber = col.GetComponent<Grabable>();
+                if(graber != null)
                 {
-                    Debug.Log($"{Logger.GetPre(this)} Hit {grab.name}");
                     DelayedRetract();
-                    GrabbedBlock = grab;
-                    grab.Grab(_head);
+                    Debug.Log($"{Logger.GetPre(this)} Hit {graber.name}");
+
+                    if(graber is BuildingBlock grab)
+                    {
+                        DelayedRetract();
+                        GrabbedBlock = grab;
+                        grab.Grab(_head);
+                    }
                 }
             }
 

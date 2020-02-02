@@ -29,6 +29,7 @@ namespace GGJ20
 
         private const int MAX_SCORE = 450;
         private PlayerScores _score;
+        public Action<PlayerStack> OnStackChanged;
         // --- Properties -------------------------------------------------------------------------------------------------
 
         // --- Unity Functions --------------------------------------------------------------------------------------------

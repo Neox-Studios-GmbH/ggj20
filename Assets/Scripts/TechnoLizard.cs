@@ -46,7 +46,6 @@ namespace GGJ20
         private void Awake()
         {
             _grapplingDelay = new Delay(_grappleCancelCooldown);
-
         }
 
         private void Update()

@@ -20,7 +20,6 @@ namespace GGJ20
         private float _lizardBoiDistance;
         private Delay _delay;
 
-        public Action<PlayerStack> OnStackChanged;
         // --- Properties -------------------------------------------------------------------------------------------------
         public Stack<BuildingBlock> BlockStack => _blockStack;
         public int CombinedStackHeight => GetCombinedStackHeight();
@@ -56,13 +55,6 @@ namespace GGJ20
         {
             if(_blockStack.Count == 0)
             {
-                _delay.ChangeDuration(_receiveDuration.GetRandom());
-                float t = Time.time;
-                while(!_delay.HasElapsed)
-                {
-                    t = _receiveDuration.GetRandom() * Time.deltaTime;
-                    block.transform.position = Vector2.Lerp(block.transform.position, transform.position, t);
-                }
                 block.transform.position = transform.position;
             }
             else
@@ -81,11 +73,15 @@ namespace GGJ20
 
             _lizardBoi.transform.position = newLizardBoiPos;
 
-            OnStackChanged?.Invoke(this);
+            GameManager.Instance.OnStackChanged?.Invoke(this);
 
             GameManager.AddPlayerScore(_player, block.Score);
         }
+        private IEnumerator PlaceBlockRoutine()
+        {
 
+            yield return null;
+        }
         private int GetCombinedStackHeight()
         {
             int height = 0;

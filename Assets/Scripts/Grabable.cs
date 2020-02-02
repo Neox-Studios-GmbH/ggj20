@@ -67,10 +67,12 @@ namespace GGJ20
             _rb.isKinematic = true;
             transform.position = other.position;
             transform.SetParent(other);
+            HandleGrab();
         }
 
         // --- Protected/Private Methods ----------------------------------------------------------------------------------   
         protected abstract void HandleGrab(Players player);
+        protected abstract void HandleGrab();
         private void OnTriggerEnter2D(Collider2D collision)
         {
             if(collision.name == "Bounds")
