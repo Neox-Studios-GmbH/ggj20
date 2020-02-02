@@ -9,7 +9,7 @@ namespace GGJ20
 {
     public enum SFX
     {
-        TechnoLizard_Rotation = 0,
+        //TechnoLizard_Rotation = 0,
         TechnoLizard_Movement = 1,
         Grappling_Shot = 2,
         Grappling_Return = 3,
@@ -17,7 +17,7 @@ namespace GGJ20
         Grab_Block_Hard = 10,
         Grab_Block_Normal = 11,
         Grab_Block_Light = 12,
-        Grab_Boulder = 13,
+        //Grab_Boulder = 13,
         Grab_LaveChunk = 14,
 
         Place_Block_Hard = 20,
@@ -25,7 +25,7 @@ namespace GGJ20
         Place_Block_Light = 23,
         Boulder_Crumble = 24,
         LavaChunk_Explosion = 25,
-        Block_Destruction = 26,
+        //Block_Destruction = 26,
 
         Lava_Splash = 30,
         Lava_Plop = 31,

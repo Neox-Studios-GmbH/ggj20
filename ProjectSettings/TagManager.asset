@@ -47,6 +47,9 @@ TagManager:
   - name: Player
     uniqueID: 1728287713
     locked: 0
+  - name: Blocks
+    uniqueID: 1177764869
+    locked: 0
   - name: LavaPool
     uniqueID: 605882171
     locked: 0
