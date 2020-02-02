@@ -13,9 +13,11 @@ namespace GGJ20
         // --- Nested Classes ---------------------------------------------------------------------------------------------
 
         // --- Fields -----------------------------------------------------------------------------------------------------
+        [SerializeField] private Players _player;
         private Stack<BuildingBlock> _blockStack;
         // --- Properties -------------------------------------------------------------------------------------------------
         public Stack<BuildingBlock> BlockStack => _blockStack;
+        public int CombinedStackHeight => GetCombinedStackHeight();
         // --- Unity Functions --------------------------------------------------------------------------------------------
         private void Awake()
         {
@@ -25,12 +27,13 @@ namespace GGJ20
         // --- Public/Internal Methods ------------------------------------------------------------------------------------
         public void AddBlock(BuildingBlock block)
         {
-            Debug.Log($"Adding {block.BType} with height {block.BlockUpperBounds} to stack");
+            //Debug.Log($"Adding {block.BType} with height {block.BlockUpperBounds} to stack");
             PlaceBlock(block);
         }
         public void DestroyBlock()
         {
-
+            Debug.Log($"Boom");
+            //check if block beneath is same type and destroy if its wood
         }
         // --- Protected/Private Methods ----------------------------------------------------------------------------------
         private void PlaceBlock(BuildingBlock block)
@@ -46,7 +49,20 @@ namespace GGJ20
                 newPos.y = lastblock.BlockUpperBounds;
                 block.transform.position = newPos;
             }
+            ParticleSystem pSystem = Instantiate(Resources.Load<ParticleSystem>("Particles/BoxPlace"), block.transform);
+            pSystem.transform.SetParent(block.transform);
             _blockStack.Push(block);
+            GameManager.AddPlayerScore(_player, block.Score);
+        }
+
+        private int GetCombinedStackHeight()
+        {
+            int height = 0;
+            foreach(BuildingBlock block in _blockStack)
+            {
+                height += block.Score;
+            }
+            return height;
         }
         // --------------------------------------------------------------------------------------------
     }

@@ -203,10 +203,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _type: 2
   _isGrabbed: 0
-  _fallSpeed: 0.246
+  _fallSpeed:
+    _min: 0.125
+    _max: 0.65
   _blockHeight: 1
   _blockType: 0
   _stairSprite: {fileID: 5649936602785291740}
+  _mainSprite: {fileID: 2565059701151581566}
 --- !u!61 &2407619203214146148
 BoxCollider2D:
   m_ObjectHideFlags: 0
