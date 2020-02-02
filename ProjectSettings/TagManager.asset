@@ -41,6 +41,12 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: GrapplingHook
+    uniqueID: 3507331715
+    locked: 0
   - name: Player
     uniqueID: 1728287713
+    locked: 0
+  - name: LavaPool
+    uniqueID: 605882171
     locked: 0

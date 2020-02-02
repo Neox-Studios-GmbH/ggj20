@@ -109,29 +109,29 @@ namespace GGJ20
 #endif
 
         // --- Public/Internal Methods ------------------------------------------------------------------------------------
-        public static void Play(SFX sfx, Vector3 position, float volume = 1f, float delay = 0f)
+        public static AudioSource Play(SFX sfx, Vector3 position, float volume = 1f, float delay = 0f)
         {
-            Instance._Play(sfx, position, volume, delay);
+            return Instance._Play(sfx, position, volume, delay);
         }
 
-        public static void PlayRandomAhh(Vector3 position, float volume = 1f, float delay = 0f)
+        public static AudioSource PlayRandomAhh(Vector3 position, float volume = 1f, float delay = 0f)
         {
-            Instance._PlayRandom(40, 47, position, volume, delay);
+            return Instance._PlayRandom(40, 47, position, volume, delay);
         }
 
-        public static void PlayRandomCheer(Vector3 position, float volume = 1f, float delay = 0f)
+        public static AudioSource PlayRandomCheer(Vector3 position, float volume = 1f, float delay = 0f)
         {
-            Instance._PlayRandom(50, 57, position, volume, delay);
+            return Instance._PlayRandom(50, 57, position, volume, delay);
         }
 
         // --- Protected/Private Methods ----------------------------------------------------------------------------------
-        private void _Play(SFX sfx, Vector3 position, float volume, float delay)
+        private AudioSource _Play(SFX sfx, Vector3 position, float volume, float delay)
         {
             SfxData data = GetData(sfx);
             if(data == null || data.Clip == null)
             {
                 Debug.LogWarning($"{PRE} Failed to get AudioClip for SFX '{sfx}'");
-                return;
+                return null;
             }
 
             AudioSource source = GetFreeSource();
@@ -148,12 +148,14 @@ namespace GGJ20
             {
                 source.Play();
             }
+
+            return source;
         }
 
-        private void _PlayRandom(int minIndex, int maxIndex, Vector3 position, float volume, float delay)
+        private AudioSource _PlayRandom(int minIndex, int maxIndex, Vector3 position, float volume, float delay)
         {
             int index = UnityEngine.Random.Range(minIndex, maxIndex + 1);
-            _Play((SFX)index, position, volume, delay);
+            return _Play((SFX)index, position, volume, delay);
         }
 
         // --------------------------------------------------------------------------------------------

@@ -55,8 +55,24 @@ namespace GGJ20
             _isGrabbed = true;
             HandleGrab(player);
         }
+        public void Grab(Transform other)
+        {
+            if(_isGrabbed)
+            {
+                Debug.Log($"Is Already grabbed!");
+                return;
+            }
+            _isGrabbed = true;
+            SetDefaultValues();
+            _rb.isKinematic = true;
+            transform.position = other.position;
+            transform.SetParent(other);
+            HandleGrab();
+        }
+
         // --- Protected/Private Methods ----------------------------------------------------------------------------------   
         protected abstract void HandleGrab(Players player);
+        protected abstract void HandleGrab();
         private void OnTriggerEnter2D(Collider2D collision)
         {
             if(collision.name == "Bounds")
@@ -64,11 +80,14 @@ namespace GGJ20
                 Return();
             }
         }
-        private void Return()
-        {
-            //Debug.Log($"Returning to Spawn");
+        private void SetDefaultValues()
+        {    //Debug.Log($"Returning to Spawn");
             _rb.velocity = Vector2.zero;
             _rb.rotation = 0;
+        }
+        private void Return()
+        {
+            SetDefaultValues();
             _isGrabbed = false;
             MegaFactory.Instance.ReturnFactoryItem(this);
         }
