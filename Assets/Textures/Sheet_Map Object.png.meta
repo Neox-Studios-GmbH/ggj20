@@ -383,10 +383,10 @@ TextureImporter:
       name: Sheet_Map Object_3
       rect:
         serializedVersion: 2
-        x: 5
-        y: 227
+        x: 1597
+        y: 128
         width: 446
-        height: 285
+        height: 631
       alignment: 2
       pivot: {x: 0.5, y: 1}
       border: {x: 0, y: 0, z: 0, w: 0}

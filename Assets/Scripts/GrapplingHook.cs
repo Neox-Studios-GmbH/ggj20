@@ -46,7 +46,7 @@ namespace GGJ20
         private AudioSource _extentSource;
         private Action _onFinish;
 
-
+        private readonly int ANIMATOR_IS_CLOSED = Animator.StringToHash("IsClosed");
 
         // --- Properties -------------------------------------------------------------------------------------------------
         public Transform Head => _head;
@@ -124,6 +124,7 @@ namespace GGJ20
 
             if(_extension == _maxLength || _forwardTimer.HasElapsed)
             {
+                _animator.SetBool(ANIMATOR_IS_CLOSED, true);
                 DelayedRetract();
             }
         }
@@ -180,6 +181,7 @@ namespace GGJ20
                 GrabbedBlock = block;
             }
 
+            _animator.SetBool(ANIMATOR_IS_CLOSED, true);            
             grab.OnGrab(this);
         }
 
@@ -200,6 +202,7 @@ namespace GGJ20
                     GrabbedBlock = null;
                 }
 
+                _animator.SetBool(ANIMATOR_IS_CLOSED, false);
                 _onFinish?.Invoke();
             }
         }

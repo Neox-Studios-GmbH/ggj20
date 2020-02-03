@@ -49,13 +49,14 @@ namespace GGJ20
         {
             transform.rotation = Randomizer.ZRotation();
             _rotationSpeed = _rotationRange.GetRandom();
+
+            _rb.bodyType = RigidbodyType2D.Dynamic;
         }
 
         private void FixedUpdate()
         {
             if(_rb.bodyType == RigidbodyType2D.Dynamic)
             {
-                //transform.Rotate(_collider.bounds.center, _rotationSpeed * Time.deltaTime);
                 transform.RotateAround(_collider.bounds.center, Vector3.forward, _rotationSpeed * Time.fixedDeltaTime);
             }
         }
@@ -124,7 +125,7 @@ namespace GGJ20
 
             this.Hook = hook;
 
-            transform.SetParent(hook.Head);            
+            transform.SetParent(hook.Head);
             transform.position = hook.HeadCenter - .5f * transform.up * BlockHeight;
 
             SoundManager.Play(BType == BlockType.Wood ? SFX.Grab_Block_Light

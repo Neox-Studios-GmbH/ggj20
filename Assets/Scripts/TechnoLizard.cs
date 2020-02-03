@@ -60,6 +60,9 @@ namespace GGJ20
 
         private void Update()
         {
+            if(GameManager.GameOver)
+                return;
+
             switch(CurrentState)
             {
                 case State.Rotating:

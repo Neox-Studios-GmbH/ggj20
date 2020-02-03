@@ -56,15 +56,12 @@ namespace GGJ20
         private void OnEnable()
         {
             _rigidbody.bodyType = RigidbodyType2D.Kinematic;
-        }
 
-        private void Start()
-        {
             _runningDirection = Randomizer.PlusMinusOne(); ;
             _renderer.flipX = _runningDirection == -1;
 
-            _cheerCooldown = new Delay(_randomCheerInterval);
             _suicideRate = SUICIDE_RANGE.GetRandom() * _suicidalTendency;
+            _cheerCooldown = new Delay(_randomCheerInterval);
 
             SwitchState(State.Run);
         }
@@ -194,13 +191,14 @@ namespace GGJ20
                 }
             }
         }
-        
+
         // --------------------------------------------------------------------------------------------
         private void ResetAndReturn()
         {
             _rigidbody.bodyType = RigidbodyType2D.Kinematic;
             _rigidbody.velocity = Vector3.zero;
             _rigidbody.angularVelocity = 0f;
+            transform.rotation = Quaternion.identity;
 
             MegaFactory.Instance.ReturnFactoryItem(this);
         }

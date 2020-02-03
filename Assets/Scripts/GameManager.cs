@@ -28,12 +28,13 @@ namespace GGJ20
         [SerializeField] private PlayerStack _stackPlayerOne;
         [SerializeField] private PlayerStack _stackPlayerTwo;
         [SerializeField] private float _loserForce = 10f;
+        [SerializeField] private TMPro.TextMeshPro _winnerText;
 
         private PlayerScores _score;
         public Action<PlayerStack> onStackChanged;
 
         // --- Properties -------------------------------------------------------------------------------------------------
-        public bool GameOver { get; private set; }
+        public static bool GameOver { get; private set; }
 
         // --- Unity Functions --------------------------------------------------------------------------------------------
         private void Awake()
@@ -44,6 +45,7 @@ namespace GGJ20
             }
 
             Instance = this;
+            GameOver = false;
             //DontDestroyOnLoad(Instance);
         }
 
@@ -162,6 +164,9 @@ namespace GGJ20
             loserStack.PerishLemmings();
 
             GameOver = true;
+
+            _winnerText.text = _winnerText.text.Replace("#NO#", ((int)player + 1).ToString());
+            _winnerText.gameObject.SetActive(true);
         }
 
 

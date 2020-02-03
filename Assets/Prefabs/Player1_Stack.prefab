@@ -69,6 +69,7 @@ GameObject:
   - component: {fileID: 9135565626901049836}
   - component: {fileID: 4970774637762114302}
   - component: {fileID: 6937252038377334732}
+  - component: {fileID: 1856303267}
   m_Layer: 0
   m_Name: Player1_Stack
   m_TagString: Untagged
@@ -185,8 +186,22 @@ MonoBehaviour:
   _receiveDuration:
     _min: 0.3
     _max: 0.5
+  _lemmingSpawnOffsetY: 0.4
   _lemmingTargetAmount: 10
   _lemmingSpawnAmount: 3
   _lemmingSpawnDelay:
     _min: 8
     _max: 14
+--- !u!114 &1856303267
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4152123190319228305}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38f48a8d66b2adc46887f23a3a88ac01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ShadowGroup: 0

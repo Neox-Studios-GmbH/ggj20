@@ -24,6 +24,9 @@ namespace GGJ20
         // --- Unity Functions --------------------------------------------------------------------------------------------
         private void FixedUpdate()
         {
+            if(GameManager.GameOver)
+                return;
+
             _elapsed += Time.deltaTime;
             float lavaT = Mathf.InverseLerp(0f, _maxSpeedDuration, _elapsed);
             float speed = _speedRamge.Lerp(lavaT);

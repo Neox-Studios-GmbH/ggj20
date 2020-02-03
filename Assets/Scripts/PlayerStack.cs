@@ -17,6 +17,7 @@ namespace GGJ20
         [SerializeField] private FloatRange _receiveDuration = new FloatRange(.5f, 1);
 
         [Header("Lemmings")]
+        [SerializeField] private float _lemmingSpawnOffsetY = .4f;
         [SerializeField] private int _lemmingTargetAmount;
         [SerializeField] private int _lemmingSpawnAmount;
         [SerializeField] private FloatRange _lemmingSpawnDelay;
@@ -69,7 +70,7 @@ namespace GGJ20
                 Lemming l = MegaFactory.Instance.GetFactoryItem<Lemming>(MegaFactory.FactoryType.Lemming);
                 float xExtents = TopBlockWidth - .25f;
                 l.transform.position = NextBlockPosition + Vector3.right * Random.Range(-xExtents, xExtents)
-                    + .5f * Vector3.up;
+                    + Vector3.up * _lemmingSpawnOffsetY;
             }
 
             CoroutineRunner.ExecuteDelayed(_lemmingSpawnDelay.GetRandom(), SpawnLemmings);

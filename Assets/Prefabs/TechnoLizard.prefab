@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6646640659687113153}
   - component: {fileID: 6724024737042382681}
   - component: {fileID: 1102293946}
+  - component: {fileID: 3710872233883346492}
   m_Layer: 0
   m_Name: Head
   m_TagString: Untagged
@@ -113,7 +114,26 @@ MonoBehaviour:
   - {x: -0.31531715, y: 0.6102972, z: 0}
   m_ShapePathHash: 1209270933
   m_Mesh: {fileID: 0}
-  m_InstanceId: 84026
+  m_InstanceId: 85092
+--- !u!95 &3710872233883346492
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4179681793683615804}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 0079c99b374703642a34025cd428b9cb, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &5203700499429887302
 GameObject:
   m_ObjectHideFlags: 0
@@ -222,7 +242,7 @@ MonoBehaviour:
   - {x: -0.14352131, y: -0.0049943924, z: 0}
   m_ShapePathHash: -2016594027
   m_Mesh: {fileID: 0}
-  m_InstanceId: 84022
+  m_InstanceId: 85088
 --- !u!1 &5326881216188610840
 GameObject:
   m_ObjectHideFlags: 0
@@ -415,7 +435,7 @@ MonoBehaviour:
   _firstPiece: {fileID: 3784740223453811269}
   _pieceOffset: 0.443
   _enableOffset: 1
-  _animator: {fileID: 0}
+  _animator: {fileID: 3710872233883346492}
   _head: {fileID: 6646640659687113153}
   _forwardDuration:
     _min: 0.15
@@ -1059,4 +1079,4 @@ MonoBehaviour:
   - {x: -1.4375906, y: -0.9355087, z: 0}
   m_ShapePathHash: -1565643239
   m_Mesh: {fileID: 0}
-  m_InstanceId: 84024
+  m_InstanceId: 85090

@@ -93,6 +93,13 @@ namespace GGJ20
         }
         private void Update()
         {
+            if(Input.GetKeyDown(KeyCode.F9))
+            {
+                StartCoroutine(FadeToGame());
+                return;
+            }
+
+
             switch(State)
             {
                 case state.Idle:
